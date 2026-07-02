@@ -5,130 +5,150 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My DLS Card Collection</title>
     <style>
-        /* === BASE STYLING === */
+        /* === ATMOSPHERIC BASE STYLING === */
         body { 
-            background-color: #141414; 
-            color: #d4d4d4; 
+            background: radial-gradient(circle at 50% 0%, #1a1a24 0%, #0c0c0e 100%); 
+            min-height: 100vh;
+            color: #e0e0e0; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             margin: 0; 
             padding: 40px 20px; 
         }
         h1 { 
             text-align: center; 
-            margin-bottom: 20px; 
+            margin-bottom: 25px; 
+            font-weight: 800;
+            letter-spacing: -0.5px;
             color: #ffffff; 
+            text-shadow: 0 4px 12px rgba(0,0,0,0.5);
         }
         
-        /* === CONTROL PANEL === */
+        /* === FROSTED GLASS CONTROLS === */
         .controls { 
             max-width: 1200px; 
-            margin: 0 auto 30px auto; 
+            margin: 0 auto 35px auto; 
             display: flex; 
-            gap: 15px; 
+            gap: 12px; 
             justify-content: center; 
             flex-wrap: wrap; 
         }
         select { 
-            background-color: #262626; 
-            color: white; 
-            border: 1px solid #444; 
-            padding: 10px 15px; 
-            border-radius: 6px; 
-            font-size: 14px; 
+            background: rgba(255, 255, 255, 0.05); 
+            color: #fff; 
+            border: 1px solid rgba(255, 255, 255, 0.12); 
+            padding: 10px 18px; 
+            border-radius: 8px; 
+            font-size: 13px; 
+            font-weight: 500;
             cursor: pointer; 
-            outline: none;
+            outline: none; 
+            transition: all 0.2s;
+            backdrop-filter: blur(8px);
+        }
+        select:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        select option {
+            background: #18181d;
+            color: #fff;
         }
 
         /* === RESPONSIVE GRID === */
         .gallery { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-            gap: 24px; 
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); 
+            gap: 22px; 
             max-width: 1200px; 
             margin: 0 auto; 
         }
 
-        /* === SLEEK UNIFORM CARD BACKGROUNDS === */
+        /* === SLEEK GRADIENT CARDS === */
         .card-container { 
-            background-color: #262626;
-            border: 1px solid #363636;
-            border-radius: 10px; 
-            padding: 16px; 
+            background: linear-gradient(145deg, #18181d, #121215);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 14px; 
+            padding: 14px; 
             display: flex; 
             flex-direction: column; 
-            transition: transform 0.2s, box-shadow 0.2s; 
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
         .card-container:hover { 
-            transform: translateY(-5px); 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-            border-color: #555555;
+            transform: translateY(-6px); 
+            border-color: rgba(255, 255, 255, 0.18);
+            box-shadow: 0 18px 35px rgba(0, 0, 0, 0.7);
         }
 
         .card-image { 
             width: 100%; 
             border-radius: 8px; 
-            margin-bottom: 15px; 
+            margin-bottom: 12px; 
+            display: block;
         }
         .card-header { 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            margin-bottom: 10px; 
+            margin-top: 4px;
+            margin-bottom: 12px; 
+            padding: 0 4px;
         }
         .card-title { 
             font-size: 15px; 
-            font-weight: 600; 
-            text-transform: uppercase; 
+            font-weight: 700; 
+            letter-spacing: 0.5px;
             color: #ffffff; 
             margin: 0; 
         }
         .card-rating { 
-            background-color: #ffd700; 
-            color: #000; 
-            font-weight: bold; 
-            padding: 3px 8px; 
-            border-radius: 12px; 
-            font-size: 13px; 
-        }
-        
-        /* === TAGS STYLING === */
-        .tags { 
-            display: flex; 
-            flex-wrap: wrap; 
-            gap: 8px; 
-        }
-        .tag { 
-            padding: 4px 9px; 
-            border-radius: 4px; 
-            font-size: 11px; 
-            font-weight: 700; 
+            background: rgba(255, 215, 0, 0.12); 
+            color: #ffd700; 
+            border: 1px solid rgba(255, 215, 0, 0.35);
+            font-weight: 800; 
+            padding: 2px 8px; 
+            border-radius: 6px; 
+            font-size: 12px; 
             letter-spacing: 0.5px;
         }
         
-        /* EXACT DLS POSITION BADGES */
-        .tag-FW { background-color: #d12828; color: #ffffff; } /* DLS Red + White text */
-        .tag-MF { background-color: #fce823; color: #000000; } /* DLS Bright Yellow + Black text */
-        .tag-DF { background-color: #2ddb4b; color: #000000; } /* DLS Bright Green + Black text */
-        .tag-GK { background-color: #2a6fd6; color: #ffffff; } /* DLS Blue + White text */
+        /* === TRANSLUCENT ESPORTS BADGES === */
+        .tags { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 6px; 
+            padding: 0 4px;
+        }
+        .tag { 
+            padding: 3px 8px; 
+            border-radius: 6px; 
+            font-size: 11px; 
+            font-weight: 600; 
+            letter-spacing: 0.5px;
+        }
         
-        /* Rarity Backgrounds */
-        .tag-Legendary { background-color: #4a4e52; color: #ffffff; } /* Gunmetal Grey */
-        .tag-Special { background-color: #d4af37; color: #000000; } /* Clean Gold */
+        /* Position Badges (Neon Translucent) */
+        .tag-FW { background: rgba(209, 40, 40, 0.15); color: #ff5e5e; border: 1px solid rgba(209, 40, 40, 0.35); }
+        .tag-MF { background: rgba(252, 232, 35, 0.12); color: #ffea3b; border: 1px solid rgba(252, 232, 35, 0.35); }
+        .tag-DF { background: rgba(45, 219, 75, 0.12); color: #4ee86e; border: 1px solid rgba(45, 219, 75, 0.35); }
+        .tag-GK { background: rgba(42, 111, 214, 0.15); color: #619dff; border: 1px solid rgba(42, 111, 214, 0.35); }
         
-        /* Special Edition Player Backgrounds */
-        .tag-Champion { background-color: #0d3a99; color: #ffffff; } /* Champions Blue */
-        .tag-Classic { background-color: #1c1c1c; color: #ffffff; border: 1px solid #777; } /* Classic Black/Silver */
-        .tag-Dream-Star { background-color: #9322c9; color: #ffffff; } /* Vibrant Purple */
-        .tag-Kick-Off-Star { background-color: #c91652; color: #ffffff; } /* Deep Pink/Red */
+        /* Rarity Badges */
+        .tag-Legendary { background: rgba(255, 255, 255, 0.05); color: #a6adb5; border: 1px solid rgba(255, 255, 255, 0.12); }
+        .tag-Special { background: rgba(212, 175, 55, 0.12); color: #f0ce54; border: 1px solid rgba(212, 175, 55, 0.35); }
         
-        /* Catches "Toty 2025", "Toty 2026", etc. automatically */
-        [class*="tag-Toty"] { background-color: #008f44; color: #ffffff; } /* Green */
+        /* Special Edition Badges */
+        .tag-Champion { background: rgba(13, 58, 153, 0.2); color: #78a2ff; border: 1px solid rgba(13, 58, 153, 0.45); }
+        .tag-Classic { background: rgba(255, 255, 255, 0.08); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.25); }
+        .tag-Dream-Star { background: rgba(147, 34, 201, 0.18); color: #d878ff; border: 1px solid rgba(147, 34, 201, 0.4); }
+        .tag-Kick-Off-Star { background: rgba(201, 22, 82, 0.18); color: #ff6e9d; border: 1px solid rgba(201, 22, 82, 0.4); }
+        [class*="tag-Toty"] { background: rgba(0, 143, 68, 0.18); color: #45f09b; border: 1px solid rgba(0, 143, 68, 0.4); }
         
     </style>
 </head>
 <body>
 
-    <h1>📒 My DLS Card Collection</h1>
+    <h1>⚽ My DLS Card Collection</h1>
     
     <!-- Controls -->
     <div class="controls">
@@ -211,7 +231,7 @@
                     <img src="images/${card.image}.webp" alt="${card.name}" class="card-image" onerror="this.src='https://via.placeholder.com/300x400/191919/ffffff?text=Image+Missing'">
                     <div class="card-header">
                         <div class="card-title">${card.name}</div>
-                        <div class="card-rating">${card.rating}</div>
+                        <div class="card-rating">★ ${card.rating}</div>
                     </div>
                     <div class="tags">${tagsHTML}</div>
                 `;
