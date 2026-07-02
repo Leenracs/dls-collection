@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My DLS Card Collection</title>
 
-    <!-- Better CSV parsing -->
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
     <style>
         :root {
@@ -675,335 +673,444 @@
     </div>
 
     <script>
-        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzy7w0GcQzjNqNFsRennLi5WorAoS6XHZPiRJF4n-3amHhA7A9czTggF9gc7TUGXIsxdPFICRikf7s/pub?gid=266421028&single=true&output=csv";
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzy7w0GcQzjNqNFsRennLi5WorAoS6XHZPiRJF4n-3amHhA7A9czTggF9gc7TUGXIsxdPFICRikf7s/pub?gid=266421028&single=true&output=csv";
 
-        let myCards = [];
+    let myCards = [];
 
-        const gallery = document.getElementById("gallery");
-        const searchInput = document.getElementById("searchInput");
-        const sortSelect = document.getElementById("sortSelect");
-        const filterSelect = document.getElementById("filterSelect");
-        const resetButton = document.getElementById("resetButton");
-        const statsCounter = document.getElementById("statsCounter");
-        const summaryGrid = document.getElementById("summaryGrid");
+    const gallery = document.getElementById("gallery");
+    const searchInput = document.getElementById("searchInput");
+    const sortSelect = document.getElementById("sortSelect");
+    const filterSelect = document.getElementById("filterSelect");
+    const resetButton = document.getElementById("resetButton");
+    const statsCounter = document.getElementById("statsCounter");
+    const summaryGrid = document.getElementById("summaryGrid");
 
-        const cardModal = document.getElementById("cardModal");
-        const modalImage = document.getElementById("modalImage");
-        const modalCaption = document.getElementById("modalCaption");
-        const modalClose = document.getElementById("modalClose");
+    const cardModal = document.getElementById("cardModal");
+    const modalImage = document.getElementById("modalImage");
+    const modalCaption = document.getElementById("modalCaption");
+    const modalClose = document.getElementById("modalClose") || document.querySelector(".modal-close");
 
-        const isDesktop = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const isDesktop = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
-        function escapeHTML(value) {
-            return String(value)
-                .replaceAll("&", "&")
-                .replaceAll("<", "<")
-                .replaceAll(">", ">")
-                .replaceAll('"', """)"
-                .replaceAll("'", "'");
+    function escapeHTML(value) {
+        return String(value)
+            .replace(/&/g, "&")
+            .replace(/</g, "<")
+            .replace(/>/g, ">")
+            .replace(/"/g, """)"
+            .replace(/'/g, "'");
+    }
+
+    function tagToClass(tag) {
+        return String(tag)
+            .trim()
+            .replace(/[^a-zA-Z0-9\s-]/g, "")
+            .replace(/\s+/g, "-");
+    }
+
+    function getImageSrc(image) {
+        const clean = String(image || "").trim();
+
+        if (!clean) {
+            return "https://via.placeholder.com/300x420/191919/ffffff?text=Image+Missing";
         }
 
-        function tagToClass(tag) {
-            return String(tag)
-                .trim()
-                .replace(/[^a-zA-Z0-9\s-]/g, "")
-                .replace(/\s+/g, "-");
+        if (clean.startsWith("http://") || clean.startsWith("https://")) {
+            return clean;
         }
 
-        function getImageSrc(image) {
-            const clean = String(image || "").trim();
-
-            if (!clean) {
-                return "https://via.placeholder.com/300x420/191919/ffffff?text=Image+Missing";
-            }
-
-            if (clean.startsWith("http://") || clean.startsWith("https://")) {
-                return clean;
-            }
-
-            if (/\.(webp|png|jpg|jpeg|gif)$/i.test(clean)) {
-                return `images/${clean}`;
-            }
-
-            return `images/${clean}.webp`;
+        if (/\.(webp|png|jpg|jpeg|gif)$/i.test(clean)) {
+            return `images/${clean}`;
         }
 
-        function showSkeletons(count = 8) {
-            gallery.innerHTML = Array.from({ length: count }).map(() => `
-                <article class="card-container">
-                    <div class="skeleton skeleton-image"></div>
-                    <div class="skeleton skeleton-line wide"></div>
-                    <div class="skeleton skeleton-line small"></div>
-                </article>
-            `).join("");
-        }
+        return `images/${clean}.webp`;
+    }
 
-        function updateSummary(cards) {
-            const total = cards.length;
-            const avg = total ? (cards.reduce((sum, card) => sum + card.rating, 0) / total).toFixed(1) : "0.0";
-            const best = total ? Math.max(...cards.map(card => card.rating)) : 0;
-            const specials = cards.filter(card =>
-                card.tags.includes("Special") ||
-                card.tags.includes("Champion") ||
-                card.tags.includes("Dream Star") ||
-                card.tags.includes("Kick-Off Star") ||
-                card.tags.includes("Toty") ||
-                card.tags.includes("TOTY")
-            ).length;
+    function parseCSV(text) {
+        const rows = [];
+        let row = [];
+        let field = "";
+        let inQuotes = false;
 
-            summaryGrid.innerHTML = `
-                <div class="summary-card">
-                    <div class="value">${total}</div>
-                    <div class="label">Total Cards</div>
-                </div>
-                <div class="summary-card">
-                    <div class="value">★ ${avg}</div>
-                    <div class="label">Average</div>
-                </div>
-                <div class="summary-card">
-                    <div class="value">★ ${best}</div>
-                    <div class="label">Best Rating</div>
-                </div>
-                <div class="summary-card">
-                    <div class="value">${specials}</div>
-                    <div class="label">Specials</div>
-                </div>
-            `;
-        }
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            const nextChar = text[i + 1];
 
-        async function loadData() {
-            showSkeletons();
-            statsCounter.innerHTML = "Loading cards...";
+            if (char === '"' && inQuotes && nextChar === '"') {
+                field += '"';"
+                i++;
+            } else if (char === '"') {"
+                inQuotes = !inQuotes;
+            } else if (char === "," && !inQuotes) {
+                row.push(field);
+                field = "";
+            } else if ((char === "\n" || char === "\r") && !inQuotes) {
+                if (char === "\r" && nextChar === "\n") i++;
 
-            try {
-                const response = await fetch(sheetURL);
+                row.push(field);
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error: ${response.status}`);
+                if (row.some(cell => cell.trim() !== "")) {
+                    rows.push(row);
                 }
 
-                const csvText = await response.text();
+                row = [];
+                field = "";
+            } else {
+                field += char;
+            }
+        }
 
-                const parsed = Papa.parse(csvText, {
-                    header: true,
-                    skipEmptyLines: true
-                });
+        if (field || row.length) {
+            row.push(field);
+            if (row.some(cell => cell.trim() !== "")) {
+                rows.push(row);
+            }
+        }
 
-                myCards = parsed.data.map(row => {
-                    const name = row.Name || row.name || row.Player || row.player || "Unknown";
-                    const rating = parseInt(row.Rating || row.rating || row.OVR || row.ovr || 0, 10);
+        return rows;
+    }
 
-                    const tags = [
-                        row.Tag1 || row.tag1 || row.Position || row.position,
-                        row.Tag2 || row.tag2 || row.Rarity || row.rarity,
-                        row.Tag3 || row.tag3 || row.Edition || row.edition
-                    ]
-                        .map(tag => tag ? String(tag).trim() : "")
+    function showSkeletons(count = 8) {
+        if (!gallery) return;
+
+        gallery.innerHTML = Array.from({ length: count }).map(() => `
+            <article class="card-container">
+                <div class="skeleton skeleton-image"></div>
+                <div class="skeleton skeleton-line wide"></div>
+                <div class="skeleton skeleton-line small"></div>
+            </article>
+        `).join("");
+    }
+
+    function updateSummary(cards) {
+        if (!summaryGrid) return;
+
+        const total = cards.length;
+        const avg = total ? (cards.reduce((sum, card) => sum + card.rating, 0) / total).toFixed(1) : "0.0";
+        const best = total ? Math.max(...cards.map(card => card.rating)) : 0;
+
+        const specials = cards.filter(card =>
+            card.tags.includes("Special") ||
+            card.tags.includes("Champion") ||
+            card.tags.includes("Dream Star") ||
+            card.tags.includes("Kick-Off Star") ||
+            card.tags.includes("Toty") ||
+            card.tags.includes("TOTY")
+        ).length;
+
+        summaryGrid.innerHTML = `
+            <div class="summary-card">
+                <div class="value">${total}</div>
+                <div class="label">Total Cards</div>
+            </div>
+            <div class="summary-card">
+                <div class="value">★ ${avg}</div>
+                <div class="label">Average</div>
+            </div>
+            <div class="summary-card">
+                <div class="value">★ ${best}</div>
+                <div class="label">Best Rating</div>
+            </div>
+            <div class="summary-card">
+                <div class="value">${specials}</div>
+                <div class="label">Specials</div>
+            </div>
+        `;
+    }
+
+    function getHeaderIndex(headers, possibleNames) {
+        const normalizedHeaders = headers.map(header =>
+            String(header).trim().toLowerCase().replace(/\s+/g, "")
+        );
+
+        for (const name of possibleNames) {
+            const normalizedName = name.toLowerCase().replace(/\s+/g, "");
+            const foundIndex = normalizedHeaders.indexOf(normalizedName);
+
+            if (foundIndex !== -1) {
+                return foundIndex;
+            }
+        }
+
+        return -1;
+    }
+
+    function rowValue(row, index, fallback = "") {
+        if (index === -1) return fallback;
+        return row[index] !== undefined ? row[index] : fallback;
+    }
+
+    async function loadData() {
+        try {
+            if (statsCounter) {
+                statsCounter.innerHTML = "Loading cards...";
+            }
+
+            showSkeletons();
+
+            const response = await fetch(sheetURL);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error ${response.status}`);
+            }
+
+            const csvText = await response.text();
+            const rows = parseCSV(csvText);
+
+            if (!rows.length) {
+                throw new Error("CSV is empty.");
+            }
+
+            const headers = rows[0];
+
+            const nameIndex = getHeaderIndex(headers, ["Name", "Player", "Player Name"]);
+            const ratingIndex = getHeaderIndex(headers, ["Rating", "OVR", "Overall"]);
+            const tag1Index = getHeaderIndex(headers, ["Tag1", "Tag 1", "Position"]);
+            const tag2Index = getHeaderIndex(headers, ["Tag2", "Tag 2", "Rarity"]);
+            const tag3Index = getHeaderIndex(headers, ["Tag3", "Tag 3", "Edition", "Type"]);
+            const imageIndex = getHeaderIndex(headers, ["Image", "File", "Filename", "Image Name"]);
+
+            const hasHeaders = nameIndex !== -1 || ratingIndex !== -1 || imageIndex !== -1;
+
+            const dataRows = hasHeaders ? rows.slice(1) : rows.slice(1);
+
+            myCards = dataRows
+                .filter(row => row.some(cell => String(cell).trim() !== ""))
+                .map(row => {
+                    const name = hasHeaders
+                        ? rowValue(row, nameIndex, "Unknown")
+                        : rowValue(row, 0, "Unknown");
+
+                    const ratingRaw = hasHeaders
+                        ? rowValue(row, ratingIndex, "0")
+                        : rowValue(row, 1, "0");
+
+                    const tag1 = hasHeaders ? rowValue(row, tag1Index, "") : rowValue(row, 2, "");
+                    const tag2 = hasHeaders ? rowValue(row, tag2Index, "") : rowValue(row, 3, "");
+                    const tag3 = hasHeaders ? rowValue(row, tag3Index, "") : rowValue(row, 4, "");
+
+                    const image = hasHeaders
+                        ? rowValue(row, imageIndex, "")
+                        : rowValue(row, 5, "");
+
+                    const tags = [tag1, tag2, tag3]
+                        .map(tag => String(tag || "").trim())
                         .filter(Boolean);
 
-                    const image = row.Image || row.image || row.File || row.file || row.Filename || row.filename || "";
-
                     return {
-                        name: String(name).trim(),
-                        rating: Number.isFinite(rating) ? rating : 0,
+                        name: String(name || "Unknown").trim(),
+                        rating: parseInt(String(ratingRaw).trim(), 10) || 0,
                         tags,
-                        image: String(image).trim()
+                        image: String(image || "").trim()
                     };
-                }).filter(card => card.name && card.name !== "Unknown");
+                })
+                .filter(card => card.name && card.name !== "Unknown");
 
-                updateSummary(myCards);
-                updateGallery();
+            updateSummary(myCards);
+            updateGallery();
 
-            } catch (error) {
-                console.error("Error loading data:", error);
+        } catch (error) {
+            console.error("Error loading data:", error);
 
+            if (statsCounter) {
                 statsCounter.innerHTML = `Could not load cards.`;
+            }
+
+            if (gallery) {
                 gallery.innerHTML = `
                     <div class="empty-state">
                         <strong>Failed to load players.</strong><br>
-                        Check your Google Sheet link, published CSV settings, or column names.
+                        Open the browser console to see the exact error.
                     </div>
                 `;
             }
         }
+    }
 
-        function applyRarityClasses(cardElement, card) {
-            if (card.tags.includes("Special")) {
-                cardElement.classList.add("rarity-special");
-            }
-
-            if (card.tags.includes("Champion")) {
-                cardElement.classList.add("rarity-champion");
-            }
-
-            if (card.tags.includes("Dream Star")) {
-                cardElement.classList.add("rarity-dream");
-            }
-
-            if (card.tags.includes("Toty") || card.tags.includes("TOTY")) {
-                cardElement.classList.add("rarity-toty");
-            }
+    function applyRarityClasses(cardElement, card) {
+        if (card.tags.includes("Special")) {
+            cardElement.classList.add("rarity-special");
         }
 
-        function openModal(card) {
-            modalImage.src = getImageSrc(card.image);
-            modalImage.alt = card.name;
-            modalCaption.innerHTML = `${escapeHTML(card.name)} <span>★ ${escapeHTML(card.rating)}</span>`;
-            cardModal.classList.add("active");
-            document.body.style.overflow = "hidden";
+        if (card.tags.includes("Champion")) {
+            cardElement.classList.add("rarity-champion");
         }
 
-        function closeModal() {
-            cardModal.classList.remove("active");
-            document.body.style.overflow = "";
+        if (card.tags.includes("Dream Star")) {
+            cardElement.classList.add("rarity-dream");
         }
 
-        function renderCards(cardsArray) {
-            gallery.innerHTML = "";
+        if (card.tags.includes("Toty") || card.tags.includes("TOTY")) {
+            cardElement.classList.add("rarity-toty");
+        }
+    }
 
-            if (cardsArray.length === 0) {
-                gallery.innerHTML = `
-                    <div class="empty-state">
-                        <strong>No players found.</strong><br>
-                        Try changing your search or filters.
-                    </div>
-                `;
-                return;
-            }
+    function openModal(card) {
+        if (!cardModal || !modalImage || !modalCaption) return;
 
-            cardsArray.forEach((card, index) => {
-                const tagsHTML = card.tags.map(tag => {
-                    const safeTag = escapeHTML(tag);
-                    const tagClass = tagToClass(tag);
-                    return `<span class="tag tag-${tagClass}">${safeTag}</span>`;
-                }).join("");
+        modalImage.src = getImageSrc(card.image);
+        modalImage.alt = card.name;
+        modalCaption.innerHTML = `${escapeHTML(card.name)} <span>★ ${escapeHTML(card.rating)}</span>`;
+        cardModal.classList.add("active");
+        document.body.style.overflow = "hidden";
+    }
 
-                const cardElement = document.createElement("article");
-                cardElement.className = "card-container";
-                cardElement.style.animationDelay = `${Math.min(index* 35, 350)}ms`;*
+    function closeModal() {
+        if (!cardModal) return;
 
-                applyRarityClasses(cardElement, card);
+        cardModal.classList.remove("active");
+        document.body.style.overflow = "";
+    }
 
-                cardElement.innerHTML = `
-                    <div class="card-image-wrapper" title="Click to zoom">
-                        <div class="holo-glare"></div>
-                        <img
-                            src="${escapeHTML(getImageSrc(card.image))}"
-                            alt="${escapeHTML(card.name)}"
-                            class="card-image"
-                            loading="lazy"
-                            onerror="this.src='https://via.placeholder.com/300x420/191919/ffffff?text=Image+Missing'"
-                        >
-                    </div>
+    function renderCards(cardsArray) {
+        if (!gallery) return;
 
-                    <div class="card-header">
-                        <div class="card-title">${escapeHTML(card.name)}</div>
-                        <div class="card-rating">★ ${escapeHTML(card.rating)}</div>
-                    </div>
+        gallery.innerHTML = "";
 
-                    <div class="tags">${tagsHTML}</div>
-                `;
+        if (cardsArray.length === 0) {
+            gallery.innerHTML = `
+                <div class="empty-state">
+                    <strong>No players found.</strong><br>
+                    Try changing your search or filters.
+                </div>
+            `;
+            return;
+        }
 
-                const imageWrapper = cardElement.querySelector(".card-image-wrapper");
-                const holoGlare = imageWrapper.querySelector(".holo-glare");
+        cardsArray.forEach((card, index) => {
+            const tagsHTML = card.tags.map(tag => {
+                const safeTag = escapeHTML(tag);
+                const tagClass = tagToClass(tag);
+                return `<span class="tag tag-${tagClass}">${safeTag}</span>`;
+            }).join("");
 
-                imageWrapper.addEventListener("click", () => {
-                    openModal(card);
+            const cardElement = document.createElement("article");
+            cardElement.className = "card-container";
+            cardElement.style.animationDelay = `${Math.min(index *35, 350)}ms`;*
+
+            applyRarityClasses(cardElement, card);
+
+            cardElement.innerHTML = `
+                <div class="card-image-wrapper" title="Click to zoom">
+                    <div class="holo-glare"></div>
+                    <img
+                        src="${escapeHTML(getImageSrc(card.image))}"
+                        alt="${escapeHTML(card.name)}"
+                        class="card-image"
+                        loading="lazy"
+                        onerror="this.src='https://via.placeholder.com/300x420/191919/ffffff?text=Image+Missing'"
+                    >
+                </div>
+
+                <div class="card-header">
+                    <div class="card-title">${escapeHTML(card.name)}</div>
+                    <div class="card-rating">★ ${escapeHTML(card.rating)}</div>
+                </div>
+
+                <div class="tags">${tagsHTML}</div>
+            `;
+
+            const imageWrapper = cardElement.querySelector(".card-image-wrapper");
+            const holoGlare = imageWrapper.querySelector(".holo-glare");
+
+            imageWrapper.addEventListener("click", () => {
+                openModal(card);
+            });
+
+            if (isDesktop) {
+                imageWrapper.addEventListener("mouseenter", () => {
+                    imageWrapper.style.transition = "transform 0.08s ease-out";
+                    imageWrapper.style.zIndex = "10";
+
+                    if (holoGlare) {
+                        holoGlare.style.opacity = "1";
+                    }
                 });
 
-                if (isDesktop) {
-                    imageWrapper.addEventListener("mouseenter", () => {
-                        imageWrapper.style.transition = "transform 0.08s ease-out";
-                        imageWrapper.style.zIndex = "10";
+                imageWrapper.addEventListener("mousemove", event => {
+                    const rect = imageWrapper.getBoundingClientRect();
+                    const x = event.clientX - rect.left;
+                    const y = event.clientY - rect.top;
 
-                        if (holoGlare) {
-                            holoGlare.style.opacity = "1";
-                        }
-                    });
+                    const rotateX = ((y - rect.height / 2) / (rect.height / 2))* -14;*
+                    const rotateY = ((x - rect.width / 2) / (rect.width / 2)) *14;*
 
-                    imageWrapper.addEventListener("mousemove", event => {
-                        const rect = imageWrapper.getBoundingClientRect();
-                        const x = event.clientX - rect.left;
-                        const y = event.clientY - rect.top;
+                    imageWrapper.style.transform = `
+                        perspective(850px)
+                        rotateX(${rotateX.toFixed(2)}deg)
+                        rotateY(${rotateY.toFixed(2)}deg)
+                        scale(1.075)
+                        translateY(-4px)
+                    `;
 
-                        const rotateX = ((y - rect.height / 2) / (rect.height / 2)) *-14;*
-                        const rotateY = ((x - rect.width / 2) / (rect.width / 2))* 14;*
+                    imageWrapper.style.boxShadow = "0 25px 50px rgba(0, 0, 0, 0.82)";
 
-                        imageWrapper.style.transform = `
-                            perspective(850px)
-                            rotateX(${rotateX.toFixed(2)}deg)
-                            rotateY(${rotateY.toFixed(2)}deg)
-                            scale(1.075)
-                            translateY(-4px)
+                    if (holoGlare) {
+                        const percentX = (x / rect.width)* 100;*
+                        const percentY = (y / rect.height) *100;*
+
+                        holoGlare.style.background = `
+                            radial-gradient(
+                                circle at ${percentX}% ${percentY}%,
+                                rgba(255, 255, 255, 0.42) 0%,
+                                rgba(255, 215, 0, 0.2) 24%,
+                                rgba(255, 105, 180, 0.14) 43%,
+                                rgba(0, 212, 255, 0.1) 62%,
+                                transparent 80%
+                            )
                         `;
+                    }
+                });
 
-                        imageWrapper.style.boxShadow = "0 25px 50px rgba(0, 0, 0, 0.82)";
+                imageWrapper.addEventListener("mouseleave", () => {
+                    imageWrapper.style.transition = "all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1)";
+                    imageWrapper.style.transform = "perspective(850px) rotateX(0deg) rotateY(0deg) scale(1) translateY(0)";
+                    imageWrapper.style.boxShadow = "none";
+                    imageWrapper.style.zIndex = "1";
 
-                        if (holoGlare) {
-                            const percentX = (x / rect.width) *100;*
-                            const percentY = (y / rect.height)* 100;*
+                    if (holoGlare) {
+                        holoGlare.style.opacity = "0";
+                    }
+                });
+            }
 
-                            holoGlare.style.background = `
-                                radial-gradient(
-                                    circle at ${percentX}% ${percentY}%,
-                                    rgba(255, 255, 255, 0.42) 0%,
-                                    rgba(255, 215, 0, 0.2) 24%,
-                                    rgba(255, 105, 180, 0.14) 43%,
-                                    rgba(0, 212, 255, 0.1) 62%,
-                                    transparent 80%
-                                )
-                            `;
-                        }
-                    });
+            gallery.appendChild(cardElement);
+        });
+    }
 
-                    imageWrapper.addEventListener("mouseleave", () => {
-                        imageWrapper.style.transition = "all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1)";
-                        imageWrapper.style.transform = "perspective(850px) rotateX(0deg) rotateY(0deg) scale(1) translateY(0)";
-                        imageWrapper.style.boxShadow = "none";
-                        imageWrapper.style.zIndex = "1";
+    function updateGallery() {
+        let filteredCards = [...myCards];
 
-                        if (holoGlare) {
-                            holoGlare.style.opacity = "0";
-                        }
-                    });
-                }
+        const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : "";
 
-                gallery.appendChild(cardElement);
-            });
+        if (searchQuery) {
+            filteredCards = filteredCards.filter(card =>
+                card.name.toLowerCase().includes(searchQuery) ||
+                card.tags.some(tag => tag.toLowerCase().includes(searchQuery))
+            );
         }
 
-        function updateGallery() {
-            let filteredCards = [...myCards];
+        const filterValue = filterSelect ? filterSelect.value : "All";
 
-            const searchQuery = searchInput.value.toLowerCase().trim();
+        if (filterValue !== "All") {
+            filteredCards = filteredCards.filter(card => card.tags.includes(filterValue));
+        }
 
-            if (searchQuery) {
-                filteredCards = filteredCards.filter(card =>
-                    card.name.toLowerCase().includes(searchQuery) ||
-                    card.tags.some(tag => tag.toLowerCase().includes(searchQuery))
-                );
-            }
+        const sortValue = sortSelect ? sortSelect.value : "ratingDesc";
 
-            const filterValue = filterSelect.value;
+        if (sortValue === "ratingDesc") {
+            filteredCards.sort((a, b) => b.rating - a.rating || a.name.localeCompare(b.name));
+        } else if (sortValue === "ratingAsc") {
+            filteredCards.sort((a, b) => a.rating - b.rating || a.name.localeCompare(b.name));
+        } else if (sortValue === "nameAsc") {
+            filteredCards.sort((a, b) => a.name.localeCompare(b.name));
+        } else if (sortValue === "nameDesc") {
+            filteredCards.sort((a, b) => b.name.localeCompare(a.name));
+        }
 
-            if (filterValue !== "All") {
-                filteredCards = filteredCards.filter(card => card.tags.includes(filterValue));
-            }
+        const count = filteredCards.length;
 
-            const sortValue = sortSelect.value;
-
-            if (sortValue === "ratingDesc") {
-                filteredCards.sort((a, b) => b.rating - a.rating || a.name.localeCompare(b.name));
-            } else if (sortValue === "ratingAsc") {
-                filteredCards.sort((a, b) => a.rating - b.rating || a.name.localeCompare(b.name));
-            } else if (sortValue === "nameAsc") {
-                filteredCards.sort((a, b) => a.name.localeCompare(b.name));
-            } else if (sortValue === "nameDesc") {
-                filteredCards.sort((a, b) => b.name.localeCompare(a.name));
-            }
-
-            const count = filteredCards.length;
-
+        if (statsCounter) {
             if (count > 0) {
                 const totalRating = filteredCards.reduce((sum, card) => sum + card.rating, 0);
                 const avg = (totalRating / count).toFixed(1);
@@ -1015,36 +1122,52 @@
             } else {
                 statsCounter.innerHTML = `Showing <span>0</span> Cards`;
             }
-
-            renderCards(filteredCards);
         }
 
-        searchInput.addEventListener("input", updateGallery);
-        sortSelect.addEventListener("change", updateGallery);
-        filterSelect.addEventListener("change", updateGallery);
+        renderCards(filteredCards);
+    }
 
+    if (searchInput) {
+        searchInput.addEventListener("input", updateGallery);
+    }
+
+    if (sortSelect) {
+        sortSelect.addEventListener("change", updateGallery);
+    }
+
+    if (filterSelect) {
+        filterSelect.addEventListener("change", updateGallery);
+    }
+
+    if (resetButton) {
         resetButton.addEventListener("click", () => {
-            searchInput.value = "";
-            sortSelect.value = "ratingDesc";
-            filterSelect.value = "All";
+            if (searchInput) searchInput.value = "";
+            if (sortSelect) sortSelect.value = "ratingDesc";
+            if (filterSelect) filterSelect.value = "All";
             updateGallery();
         });
+    }
 
+    if (cardModal) {
         cardModal.addEventListener("click", event => {
             if (event.target === cardModal) {
                 closeModal();
             }
         });
+    }
 
+    if (modalClose) {
         modalClose.addEventListener("click", closeModal);
+    }
 
-        document.addEventListener("keydown", event => {
-            if (event.key === "Escape") {
-                closeModal();
-            }
-        });
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            closeModal();
+        }
+    });
 
-        loadData();
+    loadData();
     </script>
+
 </body>
 </html>
