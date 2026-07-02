@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My DLS Card Collection</title>
+    <style>
+        /* === BASE STYLING (Notion Dark Mode) === */
+        body { 
+            background-color: #191919; 
+            color: #d4d4d4; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            margin: 0; 
+            padding: 40px 20px; 
+        }
+        h1 { 
+            text-align: center; 
+            margin-bottom: 20px; 
+            color: #ffffff; 
+        }
+        
+        /* === CONTROL PANEL === */
+        .controls { 
+            max-width: 1200px; 
+            margin: 0 auto 30px auto; 
+            display: flex; 
+            gap: 15px; 
+            justify-content: center; 
+            flex-wrap: wrap; 
+        }
+        select { 
+            background-color: #2f2f2f; 
+            color: white; 
+            border: 1px solid #444; 
+            padding: 10px 15px; 
+            border-radius: 6px; 
+            font-size: 14px; 
+            cursor: pointer; 
+            outline: none;
+        }
+
+        /* === RESPONSIVE GRID (The Notion Fix) === */
+        .gallery { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 24px; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+
+        /* === CARD STYLING === */
+        .card-container { 
+            background-color: #2f2f2f; 
+            border-radius: 8px; 
+            padding: 16px; 
+            display: flex; 
+            flex-direction: column; 
+            transition: transform 0.2s; 
+        }
+        .card-container:hover { 
+            transform: translateY(-5px); 
+        }
+        .card-image { 
+            width: 100%; 
+            border-radius: 8px; 
+            margin-bottom: 15px; 
+        }
+        .card-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 10px; 
+        }
+        .card-title { 
+            font-size: 15px; 
+            font-weight: 600; 
+            text-transform: uppercase; 
+            color: #ffffff; 
+            margin: 0; 
+        }
+        .card-rating { 
+            background-color: #ffd700; 
+            color: #000; 
+            font-weight: bold; 
+            padding: 3px 8px; 
+            border-radius: 12px; 
+            font-size: 13px; 
+        }
+        
+        /* === TAGS STYLING === */
+        .tags { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 8px; 
+        }
+        .tag { 
+            padding: 3px 8px; 
+            border-radius: 4px; 
+            font-size: 12px; 
+            font-weight: 600; 
+            color: rgba(255, 255, 255, 0.95); 
+        }
+        
+        /* Position Colors */
+        .tag-FW { background-color: #9c605c; }
+        .tag-MF { background-color: #4a7c59; }
+        .tag-DF { background-color: #3b5a9d; }
+        .tag-GK { background-color: #d4a017; color: #000; }
+        
+        /* Rarity & Special Edition Colors */
+        .tag-Legendary { background-color: #d1b22e; color: #000; }
+        .tag-Special { background-color: #2e2c2f; border: 1px solid #777;}
+        .tag-Champion { background-color: #53738c; }
+        .tag-Classic { background-color: #6b6b6b; }
+        .tag-Toty-2025 { background-color: #0b1a4a; border: 1px solid #ffd700; color: #ffd700; }
+        .tag-Kick-Off-Star { background-color: #8c2a2a; }
+    </style>
+</head>
+<body>
+
+    <h1>📒 My DLS Card Collection</h1>
+    
+    <!-- Controls for Sorting and Filtering -->
+    <div class="controls">
+        <select id="sortSelect">
+            <option value="ratingDesc">Sort by Rating (High to Low)</option>
+            <option value="ratingAsc">Sort by Rating (Low to High)</option>
+            <option value="nameAsc">Sort by Name (A-Z)</option>
+        </select>
+        <select id="filterSelect">
+            <option value="All">All Cards</option>
+            <option value="Legendary">Legendary</option>
+            <option value="Special">Special</option>
+            <option value="FW">Forwards (FW)</option>
+            <option value="MF">Midfielders (MF)</option>
+            <option value="DF">Defenders (DF)</option>
+            <option value="GK">Goalkeepers (GK)</option>
+            <option value="Champion">Champion</option>
+            <option value="Classic">Classic</option>
+        </select>
+    </div>
+
+    <!-- Gallery Container -->
+    <div class="gallery" id="gallery">
+        <p style="text-align: center; width: 100%;">Loading players...</p>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. PASTE YOUR GOOGLE SHEETS CSV LINK HERE:
+        // ==========================================
+        const sheetURL = "PASTE_YOUR_LINK_HERE"; 
+        
+        let myCards = []; 
+        const gallery = document.getElementById('gallery');
+        const sortSelect = document.getElementById('sortSelect');
+        const filterSelect = document.getElementById('filterSelect');
+
+        // ==========================================
+        // 2. FETCH DATA FROM GOOGLE SHEETS
+        // ==========================================
+        async function loadData() {
+            try {
+                const response = await fetch(sheetURL);
+                const csvText = await response.text();
+                
+                // Read rows safely (handles both Windows and Mac line breaks) and skip the header row
+                const rows = csvText.split(/\r?\n/).slice(1); 
+                
+                myCards = rows.filter(row => row.trim() !== '').map(row => {
+                    const cols = row.split(','); 
+                    
+                    const name = cols[0] ? cols[0].trim() : "Unknown";
+                    const rating = cols[1] ? parseInt(cols[1].trim()) : 0;
+                    
+                    // Combine Position (C), Rarity (D), and Special Edition (E) into tags
+                    const tags = [cols[2], cols[3], cols[4]]
+                        .map(tag => tag ? tag.trim() : '')
+                        .filter(tag => tag !== ''); // Removes any blank tags
+                        
+                    // Column F is the raw image name (e.g., lionel-messi-v1)
+                    const image = cols[5] ? cols[5].trim() : '';
+
+                    return { name, rating, tags, image };
+                });
+                
+                updateGallery(); 
+            } catch (error) {
+                console.error("Error loading data:", error);
+                gallery.innerHTML = "<p style='color:white; text-align:center;'>Failed to load players.</p>";
+            }
+        }
+
+        // ==========================================
+        // 3. DRAW THE CARDS ON THE SCREEN
+        // ==========================================
+        function renderCards(cardsArray) {
+            gallery.innerHTML = ''; 
+            
+            cardsArray.forEach(card => {
+                let tagsHTML = '';
+                card.tags.forEach(tag => {
+                    // Replaces spaces with dashes so classes work properly (e.g., "Toty 2025" -> "tag-Toty-2025")
+                    const tagClass = tag.replace(/\s+/g, '-');
+                    tagsHTML += `<span class="tag tag-${tagClass}">${tag}</span>`;
+                });
+
+                // Create the card block and dynamically inject 'images/' and '.webp'
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card-container';
+                cardElement.innerHTML = `
+                    <img src="images/${card.image}.webp" alt="${card.name}" class="card-image" onerror="this.src='https://via.placeholder.com/300x400/191919/ffffff?text=Image+Missing'">
+                    <div class="card-header">
+                        <div class="card-title">${card.name}</div>
+                        <div class="card-rating">${card.rating}</div>
+                    </div>
+                    <div class="tags">${tagsHTML}</div>
+                `;
+                gallery.appendChild(cardElement);
+            });
+        }
+
+        // ==========================================
+        // 4. SORT AND FILTER LOGIC
+        // ==========================================
+        function updateGallery() {
+            let filteredCards = [...myCards];
+            
+            // Apply filter
+            const filterValue = filterSelect.value;
+            if (filterValue !== "All") {
+                filteredCards = filteredCards.filter(card => card.tags.includes(filterValue));
+            }
+            
+            // Apply sort
+            const sortValue = sortSelect.value;
+            if (sortValue === "ratingDesc") {
+                filteredCards.sort((a, b) => b.rating - a.rating);
+            } else if (sortValue === "ratingAsc") {
+                filteredCards.sort((a, b) => a.rating - b.rating);
+            } else if (sortValue === "nameAsc") {
+                filteredCards.sort((a, b) => a.name.localeCompare(b.name));
+            }
+            
+            // Draw the updated list
+            renderCards(filteredCards);
+        }
+
+        // Listen for user changing dropdowns
+        sortSelect.addEventListener('change', updateGallery);
+        filterSelect.addEventListener('change', updateGallery);
+
+        // Start the process when the page loads
+        loadData();
+    </script>
+</body>
+</html>
