@@ -3,205 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate Card Archive</title>
+    <title>My DLS Card Collection</title>
     <style>
-        /* === CLEAN & PREMIUM BASE === */
+        /* === ATMOSPHERIC BASE STYLING === */
         body { 
-            background: #0f1014; /* Deep, clean dark background */
+            background: radial-gradient(circle at 50% 0%, #1a1a24 0%, #0c0c0e 100%); 
             min-height: 100vh;
             color: #e0e0e0; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             margin: 0; 
-            padding: 50px 20px; 
-            -webkit-font-smoothing: antialiased;
+            padding: 40px 20px; 
         }
-
-        /* === 2 & 7. HERO SECTION & PERSONALITY === */
-        .hero {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        .hero h1 {
-            font-size: 2.8rem;
+        h1 { 
+            text-align: center; 
+            margin-bottom: 25px; 
             font-weight: 800;
-            letter-spacing: -1px;
-            color: #ffffff;
-            margin: 0 0 10px 0;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            letter-spacing: -0.5px;
+            color: #ffffff; 
+            text-shadow: 0 4px 12px rgba(0,0,0,0.5);
         }
-        .hero p {
-            font-size: 1.1rem;
-            color: #8b929a;
-            margin: 0 0 25px 0;
-            font-weight: 500;
+        
+        /* === FROSTED GLASS CONTROLS & SEARCH === */
+        .controls { 
+            max-width: 1200px; 
+            margin: 0 auto 15px auto; 
+            display: flex; 
+            gap: 12px; 
+            justify-content: center; 
+            flex-wrap: wrap; 
         }
-
-        /* === 6. COLLECTION STATS (PILLS) === */
-        .stats-pills {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-        .stat-pill {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #a0a5ab;
-            backdrop-filter: blur(10px);
-        }
-        .stat-pill span {
-            color: #ffd700;
-            font-weight: 700;
-            margin-left: 4px;
-        }
-
-        /* === 5. BETTER SPACING (CONTAINERS) === */
-        .controls-section {
-            max-width: 1200px;
-            margin: 0 auto 50px auto; /* Breathing room! */
-        }
-
-        /* === 3. BIGGER SEARCH BAR & SORT === */
-        .search-row {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-        input[type="text"] { 
-            width: 100%;
-            max-width: 450px; /* BIGGER SEARCH BAR */
+        select, input[type="text"] { 
             background: rgba(255, 255, 255, 0.05); 
             color: #fff; 
-            border: 1px solid rgba(255, 255, 255, 0.15); 
-            padding: 14px 24px; 
-            border-radius: 30px; 
-            font-size: 15px; 
+            border: 1px solid rgba(255, 255, 255, 0.12); 
+            padding: 10px 18px; 
+            border-radius: 8px; 
+            font-size: 13px; 
+            font-weight: 500;
             outline: none; 
             transition: all 0.2s;
+            backdrop-filter: blur(8px);
         }
-        input[type="text"]:focus {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 0 15px rgba(255,255,255,0.05);
+        select { cursor: pointer; }
+        input[type="text"] { width: 200px; }
+        input[type="text"]::placeholder { color: #888; }
+        select:hover, input[type="text"]:focus {
+            border-color: rgba(255, 255, 255, 0.35);
+            background: rgba(255, 255, 255, 0.09);
         }
-        select {
-            background: rgba(255, 255, 255, 0.05); 
-            color: #fff; 
-            border: 1px solid rgba(255, 255, 255, 0.15); 
-            padding: 13px 20px; 
-            border-radius: 30px; 
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            outline: none;
-        }
-        select option { background: #18181d; color: #fff; }
-
-        /* === 8. FILTER CHIPS === */
-        .filter-chips {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .chip {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #a0a5ab;
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            user-select: none;
-        }
-        .chip:hover {
-            background: rgba(255, 255, 255, 0.1);
+        select option {
+            background: #18181d;
             color: #fff;
         }
-        .chip.active {
-            background: #e0e0e0;
-            color: #000;
-            border-color: #e0e0e0;
+
+        /* === LIVE STATS COUNTER === */
+        .stats-counter {
+            text-align: center;
+            font-size: 13px;
+            color: #a0a5ab;
+            margin-bottom: 30px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        .stats-counter span {
+            color: #ffd700;
+            font-weight: 700;
         }
 
-        /* === 1. CARDS ARE THE STARS === */
+        /* === RESPONSIVE GRID === */
         .gallery { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); 
-            gap: 35px; /* More space between cards */
-            max-width: 1300px; 
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); 
+            gap: 22px; 
+            max-width: 1200px; 
             margin: 0 auto; 
-            padding-bottom: 50px;
         }
 
-        .card-container {
+        /* === GROUNDED SHOWCASE CONTAINER === */
+        .card-container { 
             position: relative;
-            background: transparent; /* NO MORE BLACK BOX */
-            border: none; 
-            padding: 0; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: zoom-in;
-            transform-style: preserve-3d;
-            perspective: 1000px;
+            background: linear-gradient(145deg, #18181d, #121215);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 14px; 
+            padding: 14px; 
+            display: flex; 
+            flex-direction: column; 
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .card-container:hover {
+            border-color: rgba(255, 255, 255, 0.16);
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.65);
         }
 
-        /* BONUS: RECENTLY ADDED BADGE */
-        .badge-new {
+        /* 🪄 WRAPPER FOR POP-OUT 3D CARD 🪄 */
+        .card-image-wrapper {
+            position: relative;
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            transform-style: preserve-3d;
+            will-change: transform;
+            cursor: zoom-in; /* Magnifying glass cursor tells people they can click! */
+            z-index: 1;
+        }
+
+        /* Holographic Light Shine Layer */
+        .holo-glare {
             position: absolute;
-            top: -10px;
-            right: -10px;
-            background: linear-gradient(135deg, #ff3b3b, #ff8c00);
-            color: #fff;
-            padding: 5px 12px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            z-index: 10;
-            box-shadow: 0 4px 10px rgba(255, 59, 59, 0.4);
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 8px;
+            opacity: 0;
             pointer-events: none;
+            transition: opacity 0.25s ease;
+            z-index: 5;
+            mix-blend-mode: screen;
         }
 
         .card-image { 
             width: 100%; 
+            border-radius: 8px; 
             display: block;
-            border-radius: 12px; /* Smooth corners */
-            /* Using drop-shadow instead of box-shadow hugs the actual card shape perfectly */
-            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.4));
-            transition: filter 0.3s ease, transform 0.1s ease-out;
-            will-change: transform, filter;
+            pointer-events: none;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-
-        /* === 10. TINY HOVER ANIMATION === */
-        .card-container:hover .card-image {
-            filter: drop-shadow(0 25px 40px rgba(0,0,0,0.7)) brightness(1.08); /* Brighter + deeper shadow */
+        
+        .card-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-start; 
+            gap: 10px;
+            margin-top: 4px;
+            margin-bottom: 12px; 
+            padding: 0 4px;
         }
-
-        /* === 4. FULLSCREEN CARD VIEWER === */
+        .card-title { 
+            font-size: 15px; 
+            font-weight: 700; 
+            line-height: 1.3;
+            letter-spacing: 0.5px;
+            color: #ffffff; 
+            margin: 0; 
+            word-break: break-word;
+        }
+        .card-rating { 
+            white-space: nowrap; 
+            flex-shrink: 0; 
+            background: rgba(255, 215, 0, 0.12); 
+            color: #ffd700; 
+            border: 1px solid rgba(255, 215, 0, 0.35);
+            font-weight: 800; 
+            padding: 3px 8px; 
+            border-radius: 6px; 
+            font-size: 12px; 
+            letter-spacing: 0.5px;
+        }
+        
+        /* === TRANSLUCENT ESPORTS BADGES === */
+        .tags { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 6px; 
+            padding: 0 4px;
+        }
+        .tag { 
+            padding: 3px 8px; 
+            border-radius: 6px; 
+            font-size: 11px; 
+            font-weight: 600; 
+            letter-spacing: 0.5px;
+        }
+        
+        /* Position Badges */
+        .tag-FW { background: rgba(209, 40, 40, 0.2); color: #ff5e5e; border: 1px solid rgba(209, 40, 40, 0.45); }
+        .tag-MF { background: rgba(252, 232, 35, 0.18); color: #ffea3b; border: 1px solid rgba(252, 232, 35, 0.45); }
+        .tag-DF { background: rgba(45, 219, 75, 0.18); color: #4ee86e; border: 1px solid rgba(45, 219, 75, 0.45); }
+        .tag-GK { background: rgba(42, 111, 214, 0.2); color: #619dff; border: 1px solid rgba(42, 111, 214, 0.45); }
+        
+        /* Rarity Badges */
+        .tag-Legendary { background: rgba(255, 255, 255, 0.06); color: #a6adb5; border: 1px solid rgba(255, 255, 255, 0.15); }
+        .tag-Special { background: rgba(212, 175, 55, 0.15); color: #f0ce54; border: 1px solid rgba(212, 175, 55, 0.4); }
+        
+        /* Special Edition Badges */
+        [class*="tag-Champion"] { background: rgba(13, 58, 153, 0.25); color: #78a2ff; border: 1px solid rgba(13, 58, 153, 0.5); }
+        [class*="tag-Classic"] { background: rgba(255, 255, 255, 0.08); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.25); }
+        [class*="tag-Dream-Star"] { background: rgba(147, 34, 201, 0.22); color: #e084ff; border: 1px solid rgba(147, 34, 201, 0.5); }
+        [class*="tag-Kick-Off"] { background: rgba(201, 22, 82, 0.22); color: #ff75a4; border: 1px solid rgba(201, 22, 82, 0.5); }
+        [class*="tag-Toty"] { background: rgba(0, 143, 68, 0.22); color: #45f09b; border: 1px solid rgba(0, 143, 68, 0.5); }
+        
+        /* === FULLSCREEN LIGHTBOX MODAL === */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(5, 5, 8, 0.85);
-            backdrop-filter: blur(15px); /* Strong background blur */
-            -webkit-backdrop-filter: blur(15px);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             z-index: 1000;
             display: flex;
             justify-content: center;
             align-items: center;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.4s ease;
+            transition: opacity 0.25s ease;
+            padding: 20px;
         }
         .modal-overlay.active {
             opacity: 1;
@@ -209,26 +215,26 @@
         }
         .modal-content {
             position: relative;
+            max-width: 400px;
+            width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            transform: scale(0.7); /* Starts smaller */
-            /* Longer, smoother easing for that premium feel */
-            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
+            transform: scale(0.85);
+            transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
         .modal-overlay.active .modal-content {
             transform: scale(1);
         }
         .modal-image {
-            height: 85vh; /* Very large! */
-            max-height: 650px; /* Capped for huge screens */
-            width: auto;
-            border-radius: 16px;
-            filter: drop-shadow(0 30px 60px rgba(0,0,0,0.8));
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
         .modal-caption {
-            margin-top: 25px;
-            font-size: 22px;
+            margin-top: 15px;
+            font-size: 18px;
             font-weight: 800;
             color: #ffffff;
             text-align: center;
@@ -236,63 +242,52 @@
         }
         .modal-close {
             position: absolute;
-            top: -40px;
-            right: -40px;
+            top: -45px;
+            right: 0;
             color: #ffffff;
-            font-size: 40px;
-            font-weight: 300;
+            font-size: 32px;
+            font-weight: bold;
             cursor: pointer;
-            transition: color 0.2s, transform 0.2s;
+            transition: color 0.2s;
         }
-        .modal-close:hover { color: #ffd700; transform: scale(1.1); }
-        
-        /* Mobile adjustment for close button */
-        @media (max-width: 768px) {
-            .modal-close { right: 0; top: -50px; }
-            .modal-image { width: 90vw; height: auto; max-height: none; }
-        }
+        .modal-close:hover { color: #ffd700; }
+
     </style>
 </head>
 <body>
 
-    <!-- HERO SECTION -->
-    <header class="hero">
-        <h1>Ultimate Card Archive</h1>
-        <p>Dream League Soccer Collection • Updated regularly</p>
-        <div class="stats-pills" id="statsPills">
-            <!-- Injected dynamically via JS -->
-            <div class="stat-pill">Loading Data...</div>
-        </div>
-    </header>
+    <h1>⚽ My DLS Card Collection</h1>
     
-    <!-- CONTROLS & FILTER CHIPS -->
-    <div class="controls-section">
-        <div class="search-row">
-            <input type="text" id="searchInput" placeholder="🔍 Search Messi, Ronaldo, Rodri...">
-            <select id="sortSelect">
-                <option value="ratingDesc">Rating (High to Low)</option>
-                <option value="ratingAsc">Rating (Low to High)</option>
-                <option value="nameAsc">Name (A-Z)</option>
-            </select>
-        </div>
-        
-        <div class="filter-chips" id="filterChips">
-            <div class="chip active" data-filter="All">All</div>
-            <div class="chip" data-filter="FW">FW</div>
-            <div class="chip" data-filter="MF">MF</div>
-            <div class="chip" data-filter="DF">DF</div>
-            <div class="chip" data-filter="GK">GK</div>
-            <div class="chip" data-filter="Legendary">Legendary</div>
-            <div class="chip" data-filter="Special">Special</div>
-            <div class="chip" data-filter="Champion">Champion</div>
-            <div class="chip" data-filter="Toty">TOTY</div>
-        </div>
+    <!-- Controls & Search -->
+    <div class="controls">
+        <input type="text" id="searchInput" placeholder="🔍 Search player...">
+        <select id="sortSelect">
+            <option value="ratingDesc">Sort by Rating (High to Low)</option>
+            <option value="ratingAsc">Sort by Rating (Low to High)</option>
+            <option value="nameAsc">Sort by Name (A-Z)</option>
+        </select>
+        <select id="filterSelect">
+            <option value="All">All Cards</option>
+            <option value="Legendary">Legendary</option>
+            <option value="Special">Special</option>
+            <option value="FW">Forwards (FW)</option>
+            <option value="MF">Midfielders (MF)</option>
+            <option value="DF">Defenders (DF)</option>
+            <option value="GK">Goalkeepers (GK)</option>
+            <option value="Champion">Champion</option>
+            <option value="Classic">Classic</option>
+            <option value="Dream Star">Dream Star</option>
+            <option value="Kick-Off Star">Kick-Off Star</option>
+        </select>
     </div>
 
-    <!-- GALLERY (CARDS ONLY) -->
+    <!-- Live Counter -->
+    <div class="stats-counter" id="statsCounter">Loading stats...</div>
+
+    <!-- Gallery -->
     <div class="gallery" id="gallery"></div>
 
-    <!-- SMOOTH FULLSCREEN MODAL -->
+    <!-- Lightbox Zoom Modal -->
     <div class="modal-overlay" id="cardModal">
         <div class="modal-content">
             <span class="modal-close">&times;</span>
@@ -305,14 +300,13 @@
         const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzy7w0GcQzjNqNFsRennLi5WorAoS6XHZPiRJF4n-3amHhA7A9czTggF9gc7TUGXIsxdPFICRikf7s/pub?gid=266421028&single=true&output=csv"; 
         
         let myCards = []; 
-        let currentFilter = "All"; // Tracks active chip
-
         const gallery = document.getElementById('gallery');
         const searchInput = document.getElementById('searchInput');
         const sortSelect = document.getElementById('sortSelect');
-        const filterChips = document.querySelectorAll('.chip');
-        const statsPills = document.getElementById('statsPills');
+        const filterSelect = document.getElementById('filterSelect');
+        const statsCounter = document.getElementById('statsCounter');
 
+        // Modal elements
         const cardModal = document.getElementById('cardModal');
         const modalImage = document.getElementById('modalImage');
         const modalCaption = document.getElementById('modalCaption');
@@ -328,101 +322,99 @@
                 
                 myCards = rows.filter(row => row.trim() !== '').map(row => {
                     const cols = row.split(','); 
+                    
                     const name = cols[0] ? cols[0].trim() : "Unknown";
                     const rating = cols[1] ? parseInt(cols[1].trim()) : 0;
-                    const tags = [cols[2], cols[3], cols[4]].map(t => t ? t.trim() : '').filter(t => t !== '');
+                    
+                    const tags = [cols[2], cols[3], cols[4]]
+                        .map(tag => tag ? tag.trim() : '')
+                        .filter(tag => tag !== '');
+                        
                     const image = cols[5] ? cols[5].trim() : '';
 
                     return { name, rating, tags, image };
                 });
                 
-                updateStats(); // Setup Top Pills
-                updateGallery(); // Render
+                updateGallery(); 
             } catch (error) {
                 console.error("Error loading data:", error);
-                gallery.innerHTML = "<p style='color:#8b929a; text-align:center; width:100%;'>Failed to load collection.</p>";
+                gallery.innerHTML = "<p style='color:white; text-align:center;'>Failed to load players.</p>";
             }
         }
-
-        function updateStats() {
-            const total = myCards.length;
-            if (total === 0) return;
-
-            const totalRating = myCards.reduce((sum, card) => sum + card.rating, 0);
-            const avgRating = (totalRating / total).toFixed(1);
-            
-            const legendaryCount = myCards.filter(c => c.tags.includes("Legendary")).length;
-            // Assume anything that isn't specifically 'Legendary' or standard has a 'Special' or 'Champion' etc tag. 
-            // Checking strictly for 'Special' to keep it clean.
-            const specialCount = myCards.filter(c => c.tags.includes("Special")).length;
-
-            statsPills.innerHTML = `
-                <div class="stat-pill">Total Collection: <span>${total} Cards</span></div>
-                <div class="stat-pill">Legendary: <span>${legendaryCount}</span></div>
-                <div class="stat-pill">Special: <span>${specialCount}</span></div>
-                <div class="stat-pill">Average OVR: <span>★ ${avgRating}</span></div>
-            `;
-        }
-
-        // Handle Filter Chips Logic
-        filterChips.forEach(chip => {
-            chip.addEventListener('click', (e) => {
-                // Remove active class from all
-                filterChips.forEach(c => c.classList.remove('active'));
-                // Add active class to clicked
-                e.target.classList.add('active');
-                // Update filter state and re-render
-                currentFilter = e.target.getAttribute('data-filter');
-                updateGallery();
-            });
-        });
 
         function renderCards(cardsArray) {
             gallery.innerHTML = ''; 
             
             if (cardsArray.length === 0) {
-                gallery.innerHTML = "<p style='color:#8b929a; text-align:center; width:100%; grid-column: 1/-1;'>No cards found matching this search.</p>";
+                gallery.innerHTML = "<p style='color:#888; text-align:center; width:100%; grid-column: 1/-1;'>No players found matching your search.</p>";
                 return;
             }
 
-            cardsArray.forEach((card, index) => {
+            cardsArray.forEach(card => {
+                let tagsHTML = '';
+                card.tags.forEach(tag => {
+                    const tagClass = tag.replace(/\s+/g, '-');
+                    tagsHTML += `<span class="tag tag-${tagClass}">${tag}</span>`;
+                });
+
                 const cardElement = document.createElement('div');
                 cardElement.className = 'card-container'; 
                 
-                // Only showing the "NEW" badge on the first 3 cards of the FULL array (assuming top of sheet = newest)
-                // We check if this specific card's name/rating exists within the top 3 of the original myCards array
-                const isNew = myCards.findIndex(c => c.name === card.name && c.rating === card.rating) < 3;
-                const badgeHTML = isNew ? `<div class="badge-new">NEW</div>` : '';
-
                 cardElement.innerHTML = `
-                    ${badgeHTML}
-                    <img src="images/${card.image}.webp" alt="${card.name}" class="card-image" onerror="this.src='https://via.placeholder.com/300x400/151515/333333?text=Missing'">
+                    <div class="card-image-wrapper">
+                        <div class="holo-glare"></div>
+                        <img src="images/${card.image}.webp" alt="${card.name}" class="card-image" onerror="this.src='https://via.placeholder.com/300x400/191919/ffffff?text=Image+Missing'">
+                    </div>
+                    <div class="card-header">
+                        <div class="card-title">${card.name}</div>
+                        <div class="card-rating">★ ${card.rating}</div>
+                    </div>
+                    <div class="tags">${tagsHTML}</div>
                 `;
 
-                const imgElement = cardElement.querySelector('.card-image');
+                const imageWrapper = cardElement.querySelector('.card-image-wrapper');
+                const holoGlare = imageWrapper.querySelector('.holo-glare');
 
-                // MODAL CLICK
-                cardElement.addEventListener('click', () => {
+                // CLICK TO ZOOM (Works on both Mobile and Desktop)
+                imageWrapper.addEventListener('click', () => {
                     modalImage.src = `images/${card.image}.webp`;
-                    modalCaption.innerHTML = `${card.name} <span style="color:#ffd700; margin-left:12px;">★ ${card.rating}</span>`;
+                    modalCaption.innerHTML = `${card.name} <span style="color:#ffd700; margin-left:8px;">★ ${card.rating}</span>`;
                     cardModal.classList.add('active');
                 });
 
-                // DESKTOP 3D TILT (Applied only to the image)
+                // 🪄 DESKTOP ONLY: Dramatic Pop-Out 3D Tilt + Holo Glare 🪄
                 if (isDesktop) {
-                    cardElement.addEventListener('mousemove', (e) => {
-                        const rect = cardElement.getBoundingClientRect();
+                    imageWrapper.addEventListener('mouseenter', () => {
+                        imageWrapper.style.transition = 'transform 0.08s ease-out';
+                        imageWrapper.style.zIndex = '10'; // Brings card above neighbors while popping
+                        if (holoGlare) holoGlare.style.opacity = '1';
+                    });
+
+                    imageWrapper.addEventListener('mousemove', (e) => {
+                        const rect = imageWrapper.getBoundingClientRect();
                         const x = e.clientX - rect.left;
                         const y = e.clientY - rect.top;
                         
-                        const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -12;
-                        const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 12;
+                        const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -14;
+                        const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 14;
                         
-                        imgElement.style.transform = `rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg)`;
+                        // Increased scale to 1.08 + higher Z-axis drop shadow for true pop-out effect!
+                        imageWrapper.style.transform = `perspective(800px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(1.08) translateY(-4px)`;
+                        imageWrapper.style.boxShadow = '0 25px 45px rgba(0, 0, 0, 0.85)';
+
+                        if (holoGlare) {
+                            const percentX = (x / rect.width) * 100;
+                            const percentY = (y / rect.height) * 100;
+                            holoGlare.style.background = `radial-gradient(circle at ${percentX}% ${percentY}%, rgba(255, 255, 255, 0.38) 0%, rgba(255, 215, 0, 0.2) 25%, rgba(255, 105, 180, 0.14) 45%, rgba(0, 212, 255, 0.1) 65%, transparent 80%)`;
+                        }
                     });
 
-                    cardElement.addEventListener('mouseleave', () => {
-                        imgElement.style.transform = 'rotateX(0deg) rotateY(0deg)';
+                    imageWrapper.addEventListener('mouseleave', () => {
+                        imageWrapper.style.transition = 'all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                        imageWrapper.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) scale(1) translateY(0px)';
+                        imageWrapper.style.boxShadow = 'none';
+                        imageWrapper.style.zIndex = '1';
+                        if (holoGlare) holoGlare.style.opacity = '0';
                     });
                 }
 
@@ -430,7 +422,7 @@
             });
         }
 
-        // Close Modal
+        // Close Modal Handlers
         cardModal.addEventListener('click', (e) => {
             if (e.target === cardModal || e.target.classList.contains('modal-close')) {
                 cardModal.classList.remove('active');
@@ -443,18 +435,16 @@
         function updateGallery() {
             let filteredCards = [...myCards];
             
-            // Text Search
             const searchQuery = searchInput.value.toLowerCase().trim();
             if (searchQuery !== "") {
                 filteredCards = filteredCards.filter(card => card.name.toLowerCase().includes(searchQuery));
             }
 
-            // Chip Filter
-            if (currentFilter !== "All") {
-                filteredCards = filteredCards.filter(card => card.tags.some(tag => tag.toLowerCase().includes(currentFilter.toLowerCase())));
+            const filterValue = filterSelect.value;
+            if (filterValue !== "All") {
+                filteredCards = filteredCards.filter(card => card.tags.includes(filterValue));
             }
             
-            // Sort
             const sortValue = sortSelect.value;
             if (sortValue === "ratingDesc") {
                 filteredCards.sort((a, b) => b.rating - a.rating);
@@ -463,12 +453,22 @@
             } else if (sortValue === "nameAsc") {
                 filteredCards.sort((a, b) => a.name.localeCompare(b.name));
             }
+            
+            const count = filteredCards.length;
+            if (count > 0) {
+                const totalRating = filteredCards.reduce((sum, card) => sum + card.rating, 0);
+                const avg = (totalRating / count).toFixed(1);
+                statsCounter.innerHTML = `Showing <span>${count}</span> Card${count !== 1 ? 's' : ''} | Avg Rating: <span>★ ${avg}</span>`;
+            } else {
+                statsCounter.innerHTML = `Showing <span>0</span> Cards`;
+            }
 
             renderCards(filteredCards);
         }
 
         searchInput.addEventListener('input', updateGallery);
         sortSelect.addEventListener('change', updateGallery);
+        filterSelect.addEventListener('change', updateGallery);
 
         loadData();
     </script>
