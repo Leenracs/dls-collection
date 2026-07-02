@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My DLS Card Collection</title>
     <style>
-        /* === BASE STYLING (Notion Dark Mode) === */
+        /* === BASE STYLING === */
         body { 
             background-color: #191919; 
             color: #d4d4d4; 
@@ -39,7 +39,7 @@
             outline: none;
         }
 
-        /* === RESPONSIVE GRID (The Notion Fix) === */
+        /* === RESPONSIVE GRID === */
         .gallery { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
@@ -48,18 +48,30 @@
             margin: 0 auto; 
         }
 
-        /* === CARD STYLING === */
+        /* === DYNAMIC CARD BACKGROUNDS === */
         .card-container { 
-            background-color: #2f2f2f; 
-            border-radius: 8px; 
+            border-radius: 10px; 
             padding: 16px; 
             display: flex; 
             flex-direction: column; 
-            transition: transform 0.2s; 
+            transition: transform 0.2s, box-shadow 0.2s; 
         }
         .card-container:hover { 
             transform: translateY(-5px); 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
+        
+        /* Regulars get the Dark Grey vibe */
+        .card-regular {
+            background-color: #2b2b2b;
+            border: 1px solid #444;
+        }
+        /* Specials get the Dark Gold/Beige vibe */
+        .card-special {
+            background-color: #3b3222;
+            border: 1px solid #6b5c3d;
+        }
+
         .card-image { 
             width: 100%; 
             border-radius: 8px; 
@@ -98,29 +110,35 @@
             border-radius: 4px; 
             font-size: 12px; 
             font-weight: 600; 
-            color: rgba(255, 255, 255, 0.95); 
+            color: #ffffff; 
         }
         
         /* Position Colors */
-        .tag-FW { background-color: #9c605c; }
-        .tag-MF { background-color: #4a7c59; }
+        .tag-FW { background-color: #9c4c4c; }
+        .tag-MF { background-color: #4a8259; }
         .tag-DF { background-color: #3b5a9d; }
         .tag-GK { background-color: #d4a017; color: #000; }
         
-        /* Rarity & Special Edition Colors */
-        .tag-Legendary { background-color: #d1b22e; color: #000; }
-        .tag-Special { background-color: #2e2c2f; border: 1px solid #777;}
-        .tag-Champion { background-color: #53738c; }
-        .tag-Classic { background-color: #6b6b6b; }
-        .tag-Toty-2025 { background-color: #0b1a4a; border: 1px solid #ffd700; color: #ffd700; }
-        .tag-Kick-Off-Star { background-color: #8c2a2a; }
+        /* Rarity Backgrounds */
+        .tag-Legendary { background-color: #5c5c5c; } /* Grey */
+        .tag-Special { background-color: #c9a54a; color: #000; } /* Goldish */
+        
+        /* Special Edition Player Backgrounds */
+        .tag-Champion { background-color: #1544b8; } /* Blue */
+        .tag-Classic { background-color: #222222; border: 1px solid #888; } /* Silver/Black */
+        .tag-Dream-Star { background-color: #a02dd1; } /* Pinkish Purple */
+        .tag-Kick-Off-Star { background-color: #d60f5c; } /* Dark Pink / Red */
+        
+        /* This magic selector catches "Toty 2025", "Toty 2026", etc. automatically! */
+        [class*="tag-Toty"] { background-color: #008f44; } /* Green */
+        
     </style>
 </head>
 <body>
 
     <h1>📒 My DLS Card Collection</h1>
     
-    <!-- Controls for Sorting and Filtering -->
+    <!-- Controls -->
     <div class="controls">
         <select id="sortSelect">
             <option value="ratingDesc">Sort by Rating (High to Low)</option>
@@ -137,10 +155,13 @@
             <option value="GK">Goalkeepers (GK)</option>
             <option value="Champion">Champion</option>
             <option value="Classic">Classic</option>
+            <option value="Dream Star">Dream Star</option>
+            <option value="Kick-Off Star">Kick-Off Star</option>
+            <!-- Note: Because of the spaces, Toty is tricky to filter perfectly without exact names, so I left the main ones! -->
         </select>
     </div>
 
-    <!-- Gallery Container -->
+    <!-- Gallery -->
     <div class="gallery" id="gallery">
         <p style="text-align: center; width: 100%;">Loading players...</p>
     </div>
@@ -149,7 +170,7 @@
         // ==========================================
         // 1. PASTE YOUR GOOGLE SHEETS CSV LINK HERE:
         // ==========================================
-        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzy7w0GcQzjNqNFsRennLi5WorAoS6XHZPiRJF4n-3amHhA7A9czTggF9gc7TUGXIsxdPFICRikf7s/pub?gid=266421028&single=true&output=csv"; 
+        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzy7w0GcQzjNqNFsRennLi5WorAoS6XHZPiRJF4n-3amHhA7A9czTggF9gc7TUGXIsxdPFICRikf7s/pubhtml?gid=266421028&single=true"; 
         
         let myCards = []; 
         const gallery = document.getElementById('gallery');
@@ -157,14 +178,13 @@
         const filterSelect = document.getElementById('filterSelect');
 
         // ==========================================
-        // 2. FETCH DATA FROM GOOGLE SHEETS
+        // 2. FETCH DATA 
         // ==========================================
         async function loadData() {
             try {
                 const response = await fetch(sheetURL);
                 const csvText = await response.text();
                 
-                // Read rows safely (handles both Windows and Mac line breaks) and skip the header row
                 const rows = csvText.split(/\r?\n/).slice(1); 
                 
                 myCards = rows.filter(row => row.trim() !== '').map(row => {
@@ -173,12 +193,10 @@
                     const name = cols[0] ? cols[0].trim() : "Unknown";
                     const rating = cols[1] ? parseInt(cols[1].trim()) : 0;
                     
-                    // Combine Position (C), Rarity (D), and Special Edition (E) into tags
                     const tags = [cols[2], cols[3], cols[4]]
                         .map(tag => tag ? tag.trim() : '')
-                        .filter(tag => tag !== ''); // Removes any blank tags
+                        .filter(tag => tag !== '');
                         
-                    // Column F is the raw image name (e.g., lionel-messi-v1)
                     const image = cols[5] ? cols[5].trim() : '';
 
                     return { name, rating, tags, image };
@@ -192,7 +210,7 @@
         }
 
         // ==========================================
-        // 3. DRAW THE CARDS ON THE SCREEN
+        // 3. DRAW CARDS & APPLY DYNAMIC BACKGROUNDS
         // ==========================================
         function renderCards(cardsArray) {
             gallery.innerHTML = ''; 
@@ -200,14 +218,18 @@
             cardsArray.forEach(card => {
                 let tagsHTML = '';
                 card.tags.forEach(tag => {
-                    // Replaces spaces with dashes so classes work properly (e.g., "Toty 2025" -> "tag-Toty-2025")
                     const tagClass = tag.replace(/\s+/g, '-');
                     tagsHTML += `<span class="tag tag-${tagClass}">${tag}</span>`;
                 });
 
-                // Create the card block and dynamically inject 'images/' and '.webp'
+                // Check if the card is Special or Regular to apply the right background color!
+                const isSpecial = card.tags.includes("Special");
+                const bgClass = isSpecial ? "card-special" : "card-regular";
+
                 const cardElement = document.createElement('div');
-                cardElement.className = 'card-container';
+                // We add the dynamic background class here:
+                cardElement.className = `card-container ${bgClass}`; 
+                
                 cardElement.innerHTML = `
                     <img src="images/${card.image}.webp" alt="${card.name}" class="card-image" onerror="this.src='https://via.placeholder.com/300x400/191919/ffffff?text=Image+Missing'">
                     <div class="card-header">
@@ -221,18 +243,16 @@
         }
 
         // ==========================================
-        // 4. SORT AND FILTER LOGIC
+        // 4. SORT AND FILTER 
         // ==========================================
         function updateGallery() {
             let filteredCards = [...myCards];
             
-            // Apply filter
             const filterValue = filterSelect.value;
             if (filterValue !== "All") {
                 filteredCards = filteredCards.filter(card => card.tags.includes(filterValue));
             }
             
-            // Apply sort
             const sortValue = sortSelect.value;
             if (sortValue === "ratingDesc") {
                 filteredCards.sort((a, b) => b.rating - a.rating);
@@ -242,15 +262,12 @@
                 filteredCards.sort((a, b) => a.name.localeCompare(b.name));
             }
             
-            // Draw the updated list
             renderCards(filteredCards);
         }
 
-        // Listen for user changing dropdowns
         sortSelect.addEventListener('change', updateGallery);
         filterSelect.addEventListener('change', updateGallery);
 
-        // Start the process when the page loads
         loadData();
     </script>
 </body>
