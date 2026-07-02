@@ -668,29 +668,523 @@
     </div>
 
     <script>
-        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzy7w0GcQzjNqNFsRennLi5WorAoS6XHZPiRJF4n-3amHhA7A9czTggF9gc7TUGXIsxdPFICRikf7s/pub?gid=266421028&single=true&output=csv";
+        var sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzy7w0GcQzjNqNFsRennLi5WorAoS6XHZPiRJF4n-3amHhA7A9czTggF9gc7TUGXIsxdPFICRikf7s/pub?gid=266421028&single=true&output=csv";
 
-    const statsCounter = document.getElementById("statsCounter");
-    const gallery = document.getElementById("gallery");
+    var myCards = [];
 
-    statsCounter.innerHTML = "JS started ✅";
+    var gallery = document.getElementById("gallery");
+    var searchInput = document.getElementById("searchInput");
+    var sortSelect = document.getElementById("sortSelect");
+    var filterSelect = document.getElementById("filterSelect");
+    var resetButton = document.getElementById("resetButton");
+    var statsCounter = document.getElementById("statsCounter");
+    var summaryGrid = document.getElementById("summaryGrid");
 
-    fetch(sheetURL)
-        .then(function(response) {
-            statsCounter.innerHTML = "Fetch response: " + response.status;
-            return response.text();
-        })
-        .then(function(text) {
-            statsCounter.innerHTML = "CSV loaded ✅ Length: " + text.length;
-            gallery.innerHTML = "<pre style='color:white; white-space:pre-wrap;'>" +
-                text.slice(0, 1000)
-                    .replace(/</g, "<")
-                    .replace(/>/g, ">") +
-                "</pre>";
-        })
-        .catch(function(error) {
-            statsCounter.innerHTML = "ERROR: " + error.message;
+    var cardModal = document.getElementById("cardModal");
+    var modalImage = document.getElementById("modalImage");
+    var modalCaption = document.getElementById("modalCaption");
+    var modalClose = document.getElementById("modalClose");
+
+    var isDesktop = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+    statsCounter.innerHTML = "Loading cards...";
+
+    function parseCSV(text) {
+        var rows = [];
+        var row = [];
+        var field = "";
+        var inQuotes = false;
+
+        for (var i = 0; i < text.length; i++) {
+            var c = text[i];
+            var next = text[i + 1];
+
+            if (c === '"' && inQuotes && next === '"') {
+                field += '"';"
+                i++;
+            } else if (c === '"') {"
+                inQuotes = !inQuotes;
+            } else if (c === "," && !inQuotes) {
+                row.push(field);
+                field = "";
+            } else if ((c === "\n" || c === "\r") && !inQuotes) {
+                if (c === "\r" && next === "\n") {
+                    i++;
+                }
+
+                row.push(field);
+
+                if (row.join("").trim() !== "") {
+                    rows.push(row);
+                }
+
+                row = [];
+                field = "";
+            } else {
+                field += c;
+            }
+        }
+
+        if (field || row.length) {
+            row.push(field);
+
+            if (row.join("").trim() !== "") {
+                rows.push(row);
+            }
+        }
+
+        return rows;
+    }
+
+    function clean(value) {
+        return String(value || "").trim();
+    }
+
+    function tagToClass(tag) {
+        return clean(tag)
+            .replace(/[^a-zA-Z0-9\s-]/g, "")
+            .replace(/\s+/g, "-");
+    }
+
+    function getImageSrc(image) {
+        var img = clean(image);
+
+        if (img === "") {
+            return "https://via.placeholder.com/300x420/191919/ffffff?text=Image+Missing";
+        }
+
+        if (img.indexOf("http://") === 0 || img.indexOf("https://") === 0) {
+            return img;
+        }
+
+        if (/\.(webp|png|jpg|jpeg|gif)$/i.test(img)) {
+            return "images/" + img;
+        }
+
+        return "images/" + img + ".webp";
+    }
+
+    function showSkeletons() {
+        gallery.innerHTML = "";
+
+        for (var i = 0; i < 8; i++) {
+            var card = document.createElement("article");
+            card.className = "card-container";
+
+            var img = document.createElement("div");
+            img.className = "skeleton skeleton-image";
+
+            var line1 = document.createElement("div");
+            line1.className = "skeleton skeleton-line wide";
+
+            var line2 = document.createElement("div");
+            line2.className = "skeleton skeleton-line small";
+
+            card.appendChild(img);
+            card.appendChild(line1);
+            card.appendChild(line2);
+            gallery.appendChild(card);
+        }
+    }
+
+    function loadData() {
+        showSkeletons();
+
+        fetch(sheetURL)
+            .then(function(response) {
+                if (!response.ok) {
+                    throw new Error("HTTP error " + response.status);
+                }
+
+                return response.text();
+            })
+            .then(function(csvText) {
+                var rows = parseCSV(csvText);
+
+                if (rows.length < 2) {
+                    throw new Error("No card rows found.");
+                }
+
+                myCards = [];
+
+                for (var i = 1; i < rows.length; i++) {
+                    var row = rows[i];
+
+                    var name = clean(row[0]);
+                    var rating = parseInt(clean(row[1]), 10) || 0;
+                    var position = clean(row[2]);
+                    var rarity = clean(row[3]);
+                    var specialEdition = clean(row[4]);
+                    var image = clean(row[5]);
+
+                    if (name === "") {
+                        continue;
+                    }
+
+                    var tags = [];
+
+                    if (position !== "") {
+                        tags.push(position);
+                    }
+
+                    if (rarity !== "") {
+                        tags.push(rarity);
+                    }
+
+                    if (specialEdition !== "") {
+                        tags.push(specialEdition);
+                    }
+
+                    myCards.push({
+                        name: name,
+                        rating: rating,
+                        tags: tags,
+                        image: image
+                    });
+                }
+
+                updateSummary();
+                updateGallery();
+            })
+            .catch(function(error) {
+                console.error(error);
+                statsCounter.innerHTML = "Could not load cards.";
+                gallery.innerHTML =
+                    '<div class="empty-state">' +
+                    '<strong>Failed to load cards.</strong><br>' +
+                    error.message +
+                    '</div>';
+            });
+    }
+
+    function updateSummary() {
+        var total = myCards.length;
+        var totalRating = 0;
+        var best = 0;
+        var specials = 0;
+
+        for (var i = 0; i < myCards.length; i++) {
+            var card = myCards[i];
+
+            totalRating += card.rating;
+
+            if (card.rating > best) {
+                best = card.rating;
+            }
+
+            if (card.tags.indexOf("Special") !== -1) {
+                specials++;
+            }
+        }
+
+        var avg = total > 0 ? (totalRating / total).toFixed(1) : "0.0";
+
+        summaryGrid.innerHTML =
+            '<div class="summary-card">' +
+                '<div class="value">' + total + '</div>' +
+                '<div class="label">Total Cards</div>' +
+            '</div>' +
+            '<div class="summary-card">' +
+                '<div class="value">★ ' + avg + '</div>' +
+                '<div class="label">Average</div>' +
+            '</div>' +
+            '<div class="summary-card">' +
+                '<div class="value">★ ' + best + '</div>' +
+                '<div class="label">Best Rating</div>' +
+            '</div>' +
+            '<div class="summary-card">' +
+                '<div class="value">' + specials + '</div>' +
+                '<div class="label">Specials</div>' +
+            '</div>';
+    }
+
+    function cardMatchesFilter(card, filterValue) {
+        if (filterValue === "All") {
+            return true;
+        }
+
+        for (var i = 0; i < card.tags.length; i++) {
+            var tag = card.tags[i];
+
+            if (tag === filterValue) {
+                return true;
+            }
+
+            if (tag.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    function updateGallery() {
+        var filteredCards = myCards.slice();
+        var search = clean(searchInput.value).toLowerCase();
+        var filter = filterSelect.value;
+        var sort = sortSelect.value;
+
+        if (search !== "") {
+            filteredCards = filteredCards.filter(function(card) {
+                if (card.name.toLowerCase().indexOf(search) !== -1) {
+                    return true;
+                }
+
+                for (var i = 0; i < card.tags.length; i++) {
+                    if (card.tags[i].toLowerCase().indexOf(search) !== -1) {
+                        return true;
+                    }
+                }
+
+                return false;
+            });
+        }
+
+        filteredCards = filteredCards.filter(function(card) {
+            return cardMatchesFilter(card, filter);
         });
+
+        if (sort === "ratingDesc") {
+            filteredCards.sort(function(a, b) {
+                return b.rating - a.rating || a.name.localeCompare(b.name);
+            });
+        }
+
+        if (sort === "ratingAsc") {
+            filteredCards.sort(function(a, b) {
+                return a.rating - b.rating || a.name.localeCompare(b.name);
+            });
+        }
+
+        if (sort === "nameAsc") {
+            filteredCards.sort(function(a, b) {
+                return a.name.localeCompare(b.name);
+            });
+        }
+
+        if (sort === "nameDesc") {
+            filteredCards.sort(function(a, b) {
+                return b.name.localeCompare(a.name);
+            });
+        }
+
+        var count = filteredCards.length;
+
+        if (count > 0) {
+            var totalRating = 0;
+
+            for (var i = 0; i < filteredCards.length; i++) {
+                totalRating += filteredCards[i].rating;
+            }
+
+            var avg = (totalRating / count).toFixed(1);
+
+            statsCounter.innerHTML =
+                'Showing <span>' + count + '</span> Card' +
+                (count === 1 ? "" : "s") +
+                ' | Avg Rating: <span>★ ' + avg + '</span>';
+        } else {
+            statsCounter.innerHTML = 'Showing <span>0</span> Cards';
+        }
+
+        renderCards(filteredCards);
+    }
+
+    function applyRarityClass(cardElement, card) {
+        var joined = card.tags.join(" ").toLowerCase();
+
+        if (joined.indexOf("special") !== -1) {
+            cardElement.classList.add("rarity-special");
+        }
+
+        if (joined.indexOf("champion") !== -1) {
+            cardElement.classList.add("rarity-champion");
+        }
+
+        if (joined.indexOf("dream") !== -1) {
+            cardElement.classList.add("rarity-dream");
+        }
+
+        if (joined.indexOf("toty") !== -1) {
+            cardElement.classList.add("rarity-toty");
+        }
+    }
+
+    function renderCards(cards) {
+        gallery.innerHTML = "";
+
+        if (cards.length === 0) {
+            gallery.innerHTML =
+                '<div class="empty-state">' +
+                '<strong>No players found.</strong><br>' +
+                'Try changing your search or filters.' +
+                '</div>';
+            return;
+        }
+
+        for (var i = 0; i < cards.length; i++) {
+            createCard(cards[i], i);
+        }
+    }
+
+    function createCard(card, index) {
+        var cardElement = document.createElement("article");
+        cardElement.className = "card-container";
+        cardElement.style.animationDelay = Math.min(index *35, 350) + "ms";*
+
+        applyRarityClass(cardElement, card);
+
+        var imageWrapper = document.createElement("div");
+        imageWrapper.className = "card-image-wrapper";
+        imageWrapper.title = "Click to zoom";
+
+        var glare = document.createElement("div");
+        glare.className = "holo-glare";
+
+        var img = document.createElement("img");
+        img.className = "card-image";
+        img.src = getImageSrc(card.image);
+        img.alt = card.name;
+        img.loading = "lazy";
+        img.onerror = function() {
+            this.src = "https://via.placeholder.com/300x420/191919/ffffff?text=Image+Missing";
+        };
+
+        imageWrapper.appendChild(glare);
+        imageWrapper.appendChild(img);
+
+        var header = document.createElement("div");
+        header.className = "card-header";
+
+        var title = document.createElement("div");
+        title.className = "card-title";
+        title.textContent = card.name;
+
+        var rating = document.createElement("div");
+        rating.className = "card-rating";
+        rating.textContent = "★ " + card.rating;
+
+        header.appendChild(title);
+        header.appendChild(rating);
+
+        var tags = document.createElement("div");
+        tags.className = "tags";
+
+        for (var t = 0; t < card.tags.length; t++) {
+            var tag = document.createElement("span");
+            tag.className = "tag tag-" + tagToClass(card.tags[t]);
+            tag.textContent = card.tags[t];
+            tags.appendChild(tag);
+        }
+
+        cardElement.appendChild(imageWrapper);
+        cardElement.appendChild(header);
+        cardElement.appendChild(tags);
+
+        setupCardEvents(imageWrapper, glare, card);
+
+        gallery.appendChild(cardElement);
+    }
+
+    function setupCardEvents(imageWrapper, glare, card) {
+        imageWrapper.addEventListener("click", function() {
+            openModal(card);
+        });
+
+        if (!isDesktop) {
+            return;
+        }
+
+        imageWrapper.addEventListener("mouseenter", function() {
+            imageWrapper.style.transition = "transform 0.08s ease-out";
+            imageWrapper.style.zIndex = "10";
+            glare.style.opacity = "1";
+        });
+
+        imageWrapper.addEventListener("mousemove", function(event) {
+            var rect = imageWrapper.getBoundingClientRect();
+            var x = event.clientX - rect.left;
+            var y = event.clientY - rect.top;
+
+            var rotateX = ((y - rect.height / 2) / (rect.height / 2))* -14;*
+            var rotateY = ((x - rect.width / 2) / (rect.width / 2)) *14;*
+
+            imageWrapper.style.transform =
+                "perspective(850px) " +
+                "rotateX(" + rotateX.toFixed(2) + "deg) " +
+                "rotateY(" + rotateY.toFixed(2) + "deg) " +
+                "scale(1.075) translateY(-4px)";
+
+            imageWrapper.style.boxShadow = "0 25px 50px rgba(0, 0, 0, 0.82)";
+
+            var percentX = (x / rect.width)* 100;*
+            var percentY = (y / rect.height) * 100;*
+
+            glare.style.background =
+                "radial-gradient(circle at " + percentX + "% " + percentY + "%, " +
+                "rgba(255,255,255,0.42) 0%, " +
+                "rgba(255,215,0,0.2) 24%, " +
+                "rgba(255,105,180,0.14) 43%, " +
+                "rgba(0,212,255,0.1) 62%, " +
+                "transparent 80%)";
+        });
+
+        imageWrapper.addEventListener("mouseleave", function() {
+            imageWrapper.style.transition = "all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1)";
+            imageWrapper.style.transform = "perspective(850px) rotateX(0deg) rotateY(0deg) scale(1) translateY(0)";
+            imageWrapper.style.boxShadow = "none";
+            imageWrapper.style.zIndex = "1";
+            glare.style.opacity = "0";
+        });
+    }
+
+    function openModal(card) {
+        modalImage.src = getImageSrc(card.image);
+        modalImage.alt = card.name;
+        modalCaption.innerHTML = "";
+
+        var nameText = document.createTextNode(card.name + " ");
+        modalCaption.appendChild(nameText);
+
+        var span = document.createElement("span");
+        span.textContent = "★ " + card.rating;
+        modalCaption.appendChild(span);
+
+        cardModal.classList.add("active");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeModal() {
+        cardModal.classList.remove("active");
+        document.body.style.overflow = "";
+    }
+
+    searchInput.addEventListener("input", updateGallery);
+    sortSelect.addEventListener("change", updateGallery);
+    filterSelect.addEventListener("change", updateGallery);
+
+    resetButton.addEventListener("click", function() {
+        searchInput.value = "";
+        sortSelect.value = "ratingDesc";
+        filterSelect.value = "All";
+        updateGallery();
+    });
+
+    cardModal.addEventListener("click", function(event) {
+        if (event.target === cardModal) {
+            closeModal();
+        }
+    });
+
+    modalClose.addEventListener("click", closeModal);
+
+    document.addEventListener("keydown", function(event) {
+        if (event.key === "Escape") {
+            closeModal();
+        }
+    });
+
+    loadData();
     </script>
 </body>
 </html>
