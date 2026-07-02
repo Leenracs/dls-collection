@@ -7,7 +7,7 @@
     <style>
         /* === BASE STYLING === */
         body { 
-            background-color: #191919; 
+            background-color: #141414; 
             color: #d4d4d4; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             margin: 0; 
@@ -29,7 +29,7 @@
             flex-wrap: wrap; 
         }
         select { 
-            background-color: #2f2f2f; 
+            background-color: #262626; 
             color: white; 
             border: 1px solid #444; 
             padding: 10px 15px; 
@@ -48,8 +48,10 @@
             margin: 0 auto; 
         }
 
-        /* === DYNAMIC CARD BACKGROUNDS === */
+        /* === SLEEK UNIFORM CARD BACKGROUNDS === */
         .card-container { 
+            background-color: #262626;
+            border: 1px solid #363636;
             border-radius: 10px; 
             padding: 16px; 
             display: flex; 
@@ -58,18 +60,8 @@
         }
         .card-container:hover { 
             transform: translateY(-5px); 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-        }
-        
-        /* Regulars get the Dark Grey vibe */
-        .card-regular {
-            background-color: #2b2b2b;
-            border: 1px solid #444;
-        }
-        /* Specials get the Dark Gold/Beige vibe */
-        .card-special {
-            background-color: #3b3222;
-            border: 1px solid #6b5c3d;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            border-color: #555555;
         }
 
         .card-image { 
@@ -106,31 +98,31 @@
             gap: 8px; 
         }
         .tag { 
-            padding: 3px 8px; 
+            padding: 4px 9px; 
             border-radius: 4px; 
-            font-size: 12px; 
-            font-weight: 600; 
-            color: #ffffff; 
+            font-size: 11px; 
+            font-weight: 700; 
+            letter-spacing: 0.5px;
         }
         
-        /* Position Colors */
-        .tag-FW { background-color: #9c4c4c; }
-        .tag-MF { background-color: #4a8259; }
-        .tag-DF { background-color: #3b5a9d; }
-        .tag-GK { background-color: #d4a017; color: #000; }
+        /* EXACT DLS POSITION BADGES */
+        .tag-FW { background-color: #d12828; color: #ffffff; } /* DLS Red + White text */
+        .tag-MF { background-color: #fce823; color: #000000; } /* DLS Bright Yellow + Black text */
+        .tag-DF { background-color: #2ddb4b; color: #000000; } /* DLS Bright Green + Black text */
+        .tag-GK { background-color: #2a6fd6; color: #ffffff; } /* DLS Blue + White text */
         
         /* Rarity Backgrounds */
-        .tag-Legendary { background-color: #5c5c5c; } /* Grey */
-        .tag-Special { background-color: #c9a54a; color: #000; } /* Goldish */
+        .tag-Legendary { background-color: #4a4e52; color: #ffffff; } /* Gunmetal Grey */
+        .tag-Special { background-color: #d4af37; color: #000000; } /* Clean Gold */
         
         /* Special Edition Player Backgrounds */
-        .tag-Champion { background-color: #1544b8; } /* Blue */
-        .tag-Classic { background-color: #222222; border: 1px solid #888; } /* Silver/Black */
-        .tag-Dream-Star { background-color: #a02dd1; } /* Pinkish Purple */
-        .tag-Kick-Off-Star { background-color: #d60f5c; } /* Dark Pink / Red */
+        .tag-Champion { background-color: #0d3a99; color: #ffffff; } /* Champions Blue */
+        .tag-Classic { background-color: #1c1c1c; color: #ffffff; border: 1px solid #777; } /* Classic Black/Silver */
+        .tag-Dream-Star { background-color: #9322c9; color: #ffffff; } /* Vibrant Purple */
+        .tag-Kick-Off-Star { background-color: #c91652; color: #ffffff; } /* Deep Pink/Red */
         
-        /* This magic selector catches "Toty 2025", "Toty 2026", etc. automatically! */
-        [class*="tag-Toty"] { background-color: #008f44; } /* Green */
+        /* Catches "Toty 2025", "Toty 2026", etc. automatically */
+        [class*="tag-Toty"] { background-color: #008f44; color: #ffffff; } /* Green */
         
     </style>
 </head>
@@ -157,7 +149,6 @@
             <option value="Classic">Classic</option>
             <option value="Dream Star">Dream Star</option>
             <option value="Kick-Off Star">Kick-Off Star</option>
-            <!-- Note: Because of the spaces, Toty is tricky to filter perfectly without exact names, so I left the main ones! -->
         </select>
     </div>
 
@@ -167,9 +158,6 @@
     </div>
 
     <script>
-        // ==========================================
-        // 1. PASTE YOUR GOOGLE SHEETS CSV LINK HERE:
-        // ==========================================
         const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzy7w0GcQzjNqNFsRennLi5WorAoS6XHZPiRJF4n-3amHhA7A9czTggF9gc7TUGXIsxdPFICRikf7s/pub?gid=266421028&single=true&output=csv"; 
         
         let myCards = []; 
@@ -177,9 +165,6 @@
         const sortSelect = document.getElementById('sortSelect');
         const filterSelect = document.getElementById('filterSelect');
 
-        // ==========================================
-        // 2. FETCH DATA 
-        // ==========================================
         async function loadData() {
             try {
                 const response = await fetch(sheetURL);
@@ -209,9 +194,6 @@
             }
         }
 
-        // ==========================================
-        // 3. DRAW CARDS & APPLY DYNAMIC BACKGROUNDS
-        // ==========================================
         function renderCards(cardsArray) {
             gallery.innerHTML = ''; 
             
@@ -222,13 +204,8 @@
                     tagsHTML += `<span class="tag tag-${tagClass}">${tag}</span>`;
                 });
 
-                // Check if the card is Special or Regular to apply the right background color!
-                const isSpecial = card.tags.includes("Special");
-                const bgClass = isSpecial ? "card-special" : "card-regular";
-
                 const cardElement = document.createElement('div');
-                // We add the dynamic background class here:
-                cardElement.className = `card-container ${bgClass}`; 
+                cardElement.className = 'card-container'; 
                 
                 cardElement.innerHTML = `
                     <img src="images/${card.image}.webp" alt="${card.name}" class="card-image" onerror="this.src='https://via.placeholder.com/300x400/191919/ffffff?text=Image+Missing'">
@@ -242,9 +219,6 @@
             });
         }
 
-        // ==========================================
-        // 4. SORT AND FILTER 
-        // ==========================================
         function updateGallery() {
             let filteredCards = [...myCards];
             
