@@ -79,8 +79,9 @@
             margin: 0 auto; 
         }
 
-        /* === 3D TILT CARDS === */
+        /* === 3D TILT CARDS + HOLO OVERLAY === */
         .card-container { 
+            position: relative;
             background: linear-gradient(145deg, #18181d, #121215);
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 14px; 
@@ -91,6 +92,19 @@
             transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
             transform-style: preserve-3d;
             will-change: transform;
+            overflow: hidden; /* Keeps holographic glare tucked neatly inside rounded corners */
+        }
+
+        /* Holographic Light Shine Layer */
+        .holo-glare {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 14px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            z-index: 5;
+            mix-blend-mode: screen;
         }
 
         .card-image { 
@@ -98,7 +112,9 @@
             border-radius: 8px; 
             margin-bottom: 12px; 
             display: block;
-            pointer-events: none; /* Prevents image dragging while tilting */
+            pointer-events: none;
+            position: relative;
+            z-index: 2;
         }
         
         .card-header { 
@@ -109,6 +125,8 @@
             margin-top: 4px;
             margin-bottom: 12px; 
             padding: 0 4px;
+            position: relative;
+            z-index: 2;
         }
         .card-title { 
             font-size: 15px; 
@@ -138,6 +156,8 @@
             flex-wrap: wrap; 
             gap: 6px; 
             padding: 0 4px;
+            position: relative;
+            z-index: 2;
         }
         .tag { 
             padding: 3px 8px; 
@@ -209,7 +229,6 @@
         const filterSelect = document.getElementById('filterSelect');
         const statsCounter = document.getElementById('statsCounter');
 
-        // Check if device uses a real mouse (Desktop/Laptop) to avoid breaking mobile touch
         const isDesktop = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
         async function loadData() {
@@ -259,7 +278,9 @@
                 const cardElement = document.createElement('div');
                 cardElement.className = 'card-container'; 
                 
+                // Added the <div class="holo-glare"> layer for dynamic light reflection
                 cardElement.innerHTML = `
+                    <div class="holo-glare"></div>
                     <img src="images/${card.image}.webp" alt="${card.name}" class="card-image" onerror="this.src='https://via.placeholder.com/300x400/191919/ffffff?text=Image+Missing'">
                     <div class="card-header">
                         <div class="card-title">${card.name}</div>
@@ -268,11 +289,14 @@
                     <div class="tags">${tagsHTML}</div>
                 `;
 
-                // 🪄 DESKTOP ONLY: 3D Tilt Hover Effect 🪄
+                // 🪄 DESKTOP ONLY: 3D Tilt + Holographic Mouse Tracking 🪄
                 if (isDesktop) {
+                    const holoGlare = cardElement.querySelector('.holo-glare');
+
                     cardElement.addEventListener('mouseenter', () => {
                         cardElement.style.transition = 'transform 0.08s ease-out, border-color 0.25s ease, box-shadow 0.25s ease';
-                        cardElement.style.borderColor = 'rgba(255, 255, 255, 0.25)';
+                        cardElement.style.borderColor = 'rgba(255, 255, 255, 0.28)';
+                        if (holoGlare) holoGlare.style.opacity = '1';
                     });
 
                     cardElement.addEventListener('mousemove', (e) => {
@@ -280,12 +304,18 @@
                         const x = e.clientX - rect.left;
                         const y = e.clientY - rect.top;
                         
-                        // Calculate tilt up to 8 degrees
                         const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -8;
                         const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 8;
                         
                         cardElement.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-6px) scale(1.02)`;
                         cardElement.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.7)';
+
+                        // Move holographic shine directly under mouse cursor
+                        if (holoGlare) {
+                            const percentX = (x / rect.width) * 100;
+                            const percentY = (y / rect.height) * 100;
+                            holoGlare.style.background = `radial-gradient(circle at ${percentX}% ${percentY}%, rgba(255, 255, 255, 0.25) 0%, rgba(255, 215, 0, 0.12) 25%, rgba(255, 105, 180, 0.09) 45%, rgba(0, 212, 255, 0.06) 65%, transparent 80%)`;
+                        }
                     });
 
                     cardElement.addEventListener('mouseleave', () => {
@@ -293,6 +323,7 @@
                         cardElement.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px) scale(1)';
                         cardElement.style.borderColor = 'rgba(255, 255, 255, 0.06)';
                         cardElement.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.5)';
+                        if (holoGlare) holoGlare.style.opacity = '0';
                     });
                 }
 
@@ -303,19 +334,16 @@
         function updateGallery() {
             let filteredCards = [...myCards];
             
-            // 1. Search Filter
             const searchQuery = searchInput.value.toLowerCase().trim();
             if (searchQuery !== "") {
                 filteredCards = filteredCards.filter(card => card.name.toLowerCase().includes(searchQuery));
             }
 
-            // 2. Dropdown Tag Filter
             const filterValue = filterSelect.value;
             if (filterValue !== "All") {
                 filteredCards = filteredCards.filter(card => card.tags.includes(filterValue));
             }
             
-            // 3. Sort
             const sortValue = sortSelect.value;
             if (sortValue === "ratingDesc") {
                 filteredCards.sort((a, b) => b.rating - a.rating);
@@ -325,8 +353,6 @@
                 filteredCards.sort((a, b) => a.name.localeCompare(b.name));
             }
             
-            
-            // 4. Update Live Stats Counter
             const count = filteredCards.length;
             if (count > 0) {
                 const totalRating = filteredCards.reduce((sum, card) => sum + card.rating, 0);
