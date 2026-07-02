@@ -26,13 +26,13 @@
         /* === FROSTED GLASS CONTROLS & SEARCH === */
         .controls { 
             max-width: 1200px; 
-            margin: 0 auto 30px auto; 
+            margin: 0 auto 15px auto; 
             display: flex; 
             gap: 12px; 
             justify-content: center; 
             flex-wrap: wrap; 
         }
-        input[type="text"], select { 
+        select, input[type="text"] { 
             background: rgba(255, 255, 255, 0.05); 
             color: #fff; 
             border: 1px solid rgba(255, 255, 255, 0.12); 
@@ -44,30 +44,30 @@
             transition: all 0.2s;
             backdrop-filter: blur(8px);
         }
-        input[type="text"] {
-            width: 220px;
-        }
-        input[type="text"]:focus, select:hover {
-            border-color: rgba(255, 255, 255, 0.3);
+        select { cursor: pointer; }
+        input[type="text"] { width: 200px; }
+        input[type="text"]::placeholder { color: #888; }
+        select:hover, input[type="text"]:focus {
+            border-color: rgba(255, 255, 255, 0.35);
             background: rgba(255, 255, 255, 0.09);
-        }
-        input[type="text"]::placeholder {
-            color: #777;
         }
         select option {
             background: #18181d;
             color: #fff;
         }
 
-        /* === LIVE COUNTER === */
-        .counter {
+        /* === LIVE STATS COUNTER === */
+        .stats-counter {
             text-align: center;
             font-size: 13px;
-            color: #9aa0a6;
-            margin-top: -15px;
-            margin-bottom: 25px;
+            color: #a0a5ab;
+            margin-bottom: 30px;
             font-weight: 500;
             letter-spacing: 0.3px;
+        }
+        .stats-counter span {
+            color: #ffd700;
+            font-weight: 700;
         }
 
         /* === RESPONSIVE GRID === */
@@ -79,9 +79,8 @@
             margin: 0 auto; 
         }
 
-        /* === 3D TILT GRADIENT CARDS === */
+        /* === 3D TILT CARDS === */
         .card-container { 
-            position: relative;
             background: linear-gradient(145deg, #18181d, #121215);
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 14px; 
@@ -89,31 +88,9 @@
             display: flex; 
             flex-direction: column; 
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
             transform-style: preserve-3d;
-            transition: transform 0.1s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-            overflow: hidden;
-        }
-
-        /* Holographic Glare Overlay */
-        .card-shine {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(circle at var(--shine-x, 50%) var(--shine-y, 50%), rgba(255, 255, 255, 0.12) 0%, transparent 60%);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-            z-index: 2;
-        }
-
-        /* Only enable hover lifts on real mouse/desktop devices! */
-        @media (hover: hover) and (pointer: fine) {
-            .card-container:hover { 
-                border-color: rgba(255, 255, 255, 0.22);
-                box-shadow: 0 18px 35px rgba(0, 0, 0, 0.7);
-            }
-            .card-container:hover .card-shine {
-                opacity: 1;
-            }
+            will-change: transform;
         }
 
         .card-image { 
@@ -121,8 +98,7 @@
             border-radius: 8px; 
             margin-bottom: 12px; 
             display: block;
-            position: relative;
-            z-index: 1;
+            pointer-events: none; /* Prevents image dragging while tilting */
         }
         
         .card-header { 
@@ -133,5 +109,240 @@
             margin-top: 4px;
             margin-bottom: 12px; 
             padding: 0 4px;
-            position: relative;
-            z-index:
+        }
+        .card-title { 
+            font-size: 15px; 
+            font-weight: 700; 
+            line-height: 1.3;
+            letter-spacing: 0.5px;
+            color: #ffffff; 
+            margin: 0; 
+            word-break: break-word;
+        }
+        .card-rating { 
+            white-space: nowrap; 
+            flex-shrink: 0; 
+            background: rgba(255, 215, 0, 0.12); 
+            color: #ffd700; 
+            border: 1px solid rgba(255, 215, 0, 0.35);
+            font-weight: 800; 
+            padding: 3px 8px; 
+            border-radius: 6px; 
+            font-size: 12px; 
+            letter-spacing: 0.5px;
+        }
+        
+        /* === TRANSLUCENT ESPORTS BADGES === */
+        .tags { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 6px; 
+            padding: 0 4px;
+        }
+        .tag { 
+            padding: 3px 8px; 
+            border-radius: 6px; 
+            font-size: 11px; 
+            font-weight: 600; 
+            letter-spacing: 0.5px;
+        }
+        
+        /* Position Badges */
+        .tag-FW { background: rgba(209, 40, 40, 0.2); color: #ff5e5e; border: 1px solid rgba(209, 40, 40, 0.45); }
+        .tag-MF { background: rgba(252, 232, 35, 0.18); color: #ffea3b; border: 1px solid rgba(252, 232, 35, 0.45); }
+        .tag-DF { background: rgba(45, 219, 75, 0.18); color: #4ee86e; border: 1px solid rgba(45, 219, 75, 0.45); }
+        .tag-GK { background: rgba(42, 111, 214, 0.2); color: #619dff; border: 1px solid rgba(42, 111, 214, 0.45); }
+        
+        /* Rarity Badges */
+        .tag-Legendary { background: rgba(255, 255, 255, 0.06); color: #a6adb5; border: 1px solid rgba(255, 255, 255, 0.15); }
+        .tag-Special { background: rgba(212, 175, 55, 0.15); color: #f0ce54; border: 1px solid rgba(212, 175, 55, 0.4); }
+        
+        /* Special Edition Badges */
+        [class*="tag-Champion"] { background: rgba(13, 58, 153, 0.25); color: #78a2ff; border: 1px solid rgba(13, 58, 153, 0.5); }
+        [class*="tag-Classic"] { background: rgba(255, 255, 255, 0.08); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.25); }
+        [class*="tag-Dream-Star"] { background: rgba(147, 34, 201, 0.22); color: #e084ff; border: 1px solid rgba(147, 34, 201, 0.5); }
+        [class*="tag-Kick-Off"] { background: rgba(201, 22, 82, 0.22); color: #ff75a4; border: 1px solid rgba(201, 22, 82, 0.5); }
+        [class*="tag-Toty"] { background: rgba(0, 143, 68, 0.22); color: #45f09b; border: 1px solid rgba(0, 143, 68, 0.5); }
+        
+    </style>
+</head>
+<body>
+
+    <h1>⚽ My DLS Card Collection</h1>
+    
+    <!-- Controls & Search -->
+    <div class="controls">
+        <input type="text" id="searchInput" placeholder="🔍 Search player...">
+        <select id="sortSelect">
+            <option value="ratingDesc">Sort by Rating (High to Low)</option>
+            <option value="ratingAsc">Sort by Rating (Low to High)</option>
+            <option value="nameAsc">Sort by Name (A-Z)</option>
+        </select>
+        <select id="filterSelect">
+            <option value="All">All Cards</option>
+            <option value="Legendary">Legendary</option>
+            <option value="Special">Special</option>
+            <option value="FW">Forwards (FW)</option>
+            <option value="MF">Midfielders (MF)</option>
+            <option value="DF">Defenders (DF)</option>
+            <option value="GK">Goalkeepers (GK)</option>
+            <option value="Champion">Champion</option>
+            <option value="Classic">Classic</option>
+            <option value="Dream Star">Dream Star</option>
+            <option value="Kick-Off Star">Kick-Off Star</option>
+        </select>
+    </div>
+
+    <!-- Live Counter -->
+    <div class="stats-counter" id="statsCounter">Loading stats...</div>
+
+    <!-- Gallery -->
+    <div class="gallery" id="gallery"></div>
+
+    <script>
+        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzy7w0GcQzjNqNFsRennLi5WorAoS6XHZPiRJF4n-3amHhA7A9czTggF9gc7TUGXIsxdPFICRikf7s/pub?gid=266421028&single=true&output=csv"; 
+        
+        let myCards = []; 
+        const gallery = document.getElementById('gallery');
+        const searchInput = document.getElementById('searchInput');
+        const sortSelect = document.getElementById('sortSelect');
+        const filterSelect = document.getElementById('filterSelect');
+        const statsCounter = document.getElementById('statsCounter');
+
+        // Check if device uses a real mouse (Desktop/Laptop) to avoid breaking mobile touch
+        const isDesktop = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+        async function loadData() {
+            try {
+                const response = await fetch(sheetURL);
+                const csvText = await response.text();
+                
+                const rows = csvText.split(/\r?\n/).slice(1); 
+                
+                myCards = rows.filter(row => row.trim() !== '').map(row => {
+                    const cols = row.split(','); 
+                    
+                    const name = cols[0] ? cols[0].trim() : "Unknown";
+                    const rating = cols[1] ? parseInt(cols[1].trim()) : 0;
+                    
+                    const tags = [cols[2], cols[3], cols[4]]
+                        .map(tag => tag ? tag.trim() : '')
+                        .filter(tag => tag !== '');
+                        
+                    const image = cols[5] ? cols[5].trim() : '';
+
+                    return { name, rating, tags, image };
+                });
+                
+                updateGallery(); 
+            } catch (error) {
+                console.error("Error loading data:", error);
+                gallery.innerHTML = "<p style='color:white; text-align:center;'>Failed to load players.</p>";
+            }
+        }
+
+        function renderCards(cardsArray) {
+            gallery.innerHTML = ''; 
+            
+            if (cardsArray.length === 0) {
+                gallery.innerHTML = "<p style='color:#888; text-align:center; width:100%; grid-column: 1/-1;'>No players found matching your search.</p>";
+                return;
+            }
+
+            cardsArray.forEach(card => {
+                let tagsHTML = '';
+                card.tags.forEach(tag => {
+                    const tagClass = tag.replace(/\s+/g, '-');
+                    tagsHTML += `<span class="tag tag-${tagClass}">${tag}</span>`;
+                });
+
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card-container'; 
+                
+                cardElement.innerHTML = `
+                    <img src="images/${card.image}.webp" alt="${card.name}" class="card-image" onerror="this.src='https://via.placeholder.com/300x400/191919/ffffff?text=Image+Missing'">
+                    <div class="card-header">
+                        <div class="card-title">${card.name}</div>
+                        <div class="card-rating">★ ${card.rating}</div>
+                    </div>
+                    <div class="tags">${tagsHTML}</div>
+                `;
+
+                // 🪄 DESKTOP ONLY: 3D Tilt Hover Effect 🪄
+                if (isDesktop) {
+                    cardElement.addEventListener('mouseenter', () => {
+                        cardElement.style.transition = 'transform 0.08s ease-out, border-color 0.25s ease, box-shadow 0.25s ease';
+                        cardElement.style.borderColor = 'rgba(255, 255, 255, 0.25)';
+                    });
+
+                    cardElement.addEventListener('mousemove', (e) => {
+                        const rect = cardElement.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        
+                        // Calculate tilt up to 8 degrees
+                        const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -8;
+                        const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 8;
+                        
+                        cardElement.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-6px) scale(1.02)`;
+                        cardElement.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.7)';
+                    });
+
+                    cardElement.addEventListener('mouseleave', () => {
+                        cardElement.style.transition = 'all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                        cardElement.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px) scale(1)';
+                        cardElement.style.borderColor = 'rgba(255, 255, 255, 0.06)';
+                        cardElement.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.5)';
+                    });
+                }
+
+                gallery.appendChild(cardElement);
+            });
+        }
+
+        function updateGallery() {
+            let filteredCards = [...myCards];
+            
+            // 1. Search Filter
+            const searchQuery = searchInput.value.toLowerCase().trim();
+            if (searchQuery !== "") {
+                filteredCards = filteredCards.filter(card => card.name.toLowerCase().includes(searchQuery));
+            }
+
+            // 2. Dropdown Tag Filter
+            const filterValue = filterSelect.value;
+            if (filterValue !== "All") {
+                filteredCards = filteredCards.filter(card => card.tags.includes(filterValue));
+            }
+            
+            // 3. Sort
+            const sortValue = sortSelect.value;
+            if (sortValue === "ratingDesc") {
+                filteredCards.sort((a, b) => b.rating - a.rating);
+            } else if (sortValue === "ratingAsc") {
+                filteredCards.sort((a, b) => a.rating - b.rating);
+            } else if (sortValue === "nameAsc") {
+                filteredCards.sort((a, b) => a.name.localeCompare(b.name));
+            }
+            
+            // 4. Update Live Stats Counter
+            const count = filteredCards.length;
+            if (count > 0) {
+                const totalRating = filteredCards.reduce((sum, card) => sum + card.rating, 0);
+                const avg = (totalRating / count).toFixed(1);
+                statsCounter.innerHTML = `Showing <span>${count}</span> Card${count !== 1 ? 's' : ''} | Avg Rating: <span>★ ${avg}</span>`;
+            } else {
+                statsCounter.innerHTML = `Showing <span>0</span> Cards`;
+            }
+
+            renderCards(filteredCards);
+        }
+
+        searchInput.addEventListener('input', updateGallery);
+        sortSelect.addEventListener('change', updateGallery);
+        filterSelect.addEventListener('change', updateGallery);
+
+        loadData();
+    </script>
+</body>
+</html>
