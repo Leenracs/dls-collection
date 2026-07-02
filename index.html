@@ -1,129 +1,343 @@
 <!DOCTYPE html>
-
-<!--
-NOTE:
-A full redesign of this file exceeds the maximum response size ChatGPT can
-generate in a single pass. This file is your current working version copied
-into an HTML file so you can edit it directly.
-
-I can redesign it incrementally (hero, filters, layout, cards, etc.) over
-multiple turns.
--->
-
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My DLS Card Collection</title>
+
+    <!-- Better CSV parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
     <style>
-        /* === ATMOSPHERIC BASE STYLING === */
-        body { 
-            background: radial-gradient(circle at 50% 0%, #1a1a24 0%, #0c0c0e 100%); 
+        :root {
+            --bg: #09090d;
+            --panel: rgba(255,255,255,0.045);
+            --panel-strong: rgba(255,255,255,0.075);
+            --border: rgba(255,255,255,0.1);
+            --text: #f4f4f5;
+            --muted: #9ca3af;
+            --gold: #ffd700;
+            --blue: #619dff;
+            --radius: 18px;
+        }
+
+        *{*
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
             min-height: 100vh;
-            color: #e0e0e0; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            margin: 0; 
-            padding: 40px 20px; 
+            margin: 0;
+            padding: 32px 18px 50px;
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background:
+                radial-gradient(circle at 15% 0%, rgba(255, 215, 0, 0.13), transparent 30%),
+                radial-gradient(circle at 85% 8%, rgba(80, 120, 255, 0.16), transparent 32%),
+                radial-gradient(circle at 50% 100%, rgba(190, 60, 255, 0.09), transparent 38%),
+                linear-gradient(180deg, #101018 0%, #09090d 55%, #070709 100%);
+            overflow-x: hidden;
         }
-        h1 { 
-            text-align: center; 
-            margin-bottom: 25px; 
-            font-weight: 800;
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 42px 42px;
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent 75%);
+            z-index: -1;
+        }
+
+        /* === HERO === */
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto 18px;
+            padding: 38px 22px;
+            text-align: center;
+            border-radius: 26px;
+            background:
+                linear-gradient(135deg, rgba(255, 215, 0, 0.14), transparent 34%),
+                linear-gradient(225deg, rgba(80, 120, 255, 0.17), transparent 40%),
+                rgba(255,255,255,0.045);
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 22px 70px rgba(0,0,0,0.38);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            width: 360px;
+            height: 360px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.05);
+            filter: blur(24px);
+            top: -220px;
+            left: 50%;
+            transform: translateX(-50%);
+            pointer-events: none;
+        }
+
+        .hero-kicker {
+            color: var(--gold);
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2.4px;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            margin: 0;
+            font-size: clamp(34px, 6vw, 64px);
+            line-height: 0.96;
+            font-weight: 950;
+            letter-spacing: -2px;
+            color: #fff;
+            text-shadow: 0 8px 24px rgba(0,0,0,0.45);
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero p {
+            margin: 16px auto 0;
+            max-width: 610px;
+            color: #b8bec7;
+            font-size: 15px;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* === SUMMARY === */
+        .summary-grid {
+            max-width: 1200px;
+            margin: 0 auto 18px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .summary-card {
+            border-radius: 18px;
+            padding: 17px 14px;
+            text-align: center;
+            background: rgba(255,255,255,0.045);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.22);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        .summary-card .value {
+            font-size: 25px;
+            font-weight: 950;
+            color: var(--gold);
             letter-spacing: -0.5px;
-            color: #ffffff; 
-            text-shadow: 0 4px 12px rgba(0,0,0,0.5);
         }
-        
-        /* === FROSTED GLASS CONTROLS & SEARCH === */
-        .controls { 
-            max-width: 1200px; 
-            margin: 0 auto 15px auto; 
-            display: flex; 
-            gap: 12px; 
-            justify-content: center; 
-            flex-wrap: wrap; 
+
+        .summary-card .label {
+            margin-top: 5px;
+            font-size: 11px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            font-weight: 800;
         }
-        select, input[type="text"] { 
-            background: rgba(255, 255, 255, 0.05); 
-            color: #fff; 
-            border: 1px solid rgba(255, 255, 255, 0.12); 
-            padding: 10px 18px; 
-            border-radius: 8px; 
-            font-size: 13px; 
-            font-weight: 500;
-            outline: none; 
-            transition: all 0.2s;
+
+        /* === CONTROLS === */
+        .controls {
+            max-width: 1200px;
+            margin: 0 auto 14px;
+            padding: 14px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.045);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.26);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        select,
+        input[type="text"],
+        button {
+            min-height: 42px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.13);
+            padding: 10px 15px;
+            border-radius: 11px;
+            font-size: 13px;
+            font-weight: 700;
+            outline: none;
+            transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
             backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
-        select { cursor: pointer; }
-        input[type="text"] { width: 200px; }
-        input[type="text"]::placeholder { color: #888; }
-        select:hover, input[type="text"]:focus {
-            border-color: rgba(255, 255, 255, 0.35);
-            background: rgba(255, 255, 255, 0.09);
+
+        input[type="text"] {
+            width: min(340px, 100%);
         }
+
+        input[type="text"]::placeholder {
+            color: #858b96;
+        }
+
+        select {
+            cursor: pointer;
+        }
+
         select option {
             background: #18181d;
             color: #fff;
         }
 
-        /* === LIVE STATS COUNTER === */
+        select:hover,
+        input[type="text"]:focus,
+        button:hover {
+            border-color: rgba(255, 255, 255, 0.34);
+            background: rgba(255, 255, 255, 0.095);
+        }
+
+        button {
+            cursor: pointer;
+            color: var(--gold);
+            border-color: rgba(255,215,0,0.28);
+            background: rgba(255,215,0,0.1);
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            background: rgba(255,215,0,0.16);
+        }
+
+        /* === STATS COUNTER === */
         .stats-counter {
+            max-width: 1200px;
+            margin: 0 auto 26px;
             text-align: center;
             font-size: 13px;
             color: #a0a5ab;
-            margin-bottom: 30px;
-            font-weight: 500;
+            font-weight: 700;
             letter-spacing: 0.3px;
         }
+
         .stats-counter span {
-            color: #ffd700;
-            font-weight: 700;
+            color: var(--gold);
+            font-weight: 950;
         }
 
-        /* === RESPONSIVE GRID === */
-        .gallery { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); 
-            gap: 22px; 
-            max-width: 1200px; 
-            margin: 0 auto; 
+        /* === GALLERY === */
+        .gallery {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 280px));
+            justify-content: center;
+            gap: 22px;
         }
 
-        /* === GROUNDED SHOWCASE CONTAINER === */
-        .card-container { 
+        .card-container {
             position: relative;
-            background: linear-gradient(145deg, #18181d, #121215);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 14px; 
-            padding: 14px; 
-            display: flex; 
-            flex-direction: column; 
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .card-container:hover {
-            border-color: rgba(255, 255, 255, 0.16);
-            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.65);
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            border-radius: 18px;
+            background:
+                linear-gradient(145deg, rgba(255,255,255,0.07), rgba(255,255,255,0.025)),
+                linear-gradient(145deg, #18181d, #101014);
+            border: 1px solid rgba(255,255,255,0.075);
+            box-shadow: 0 14px 35px rgba(0,0,0,0.42);
+            transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+            animation: cardIn 0.38s ease both;
+            overflow: visible;
         }
 
-        /* 🪄 WRAPPER FOR POP-OUT 3D CARD 🪄 */
+        .card-container::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.08), transparent 45%);
+            opacity: 0.9;
+        }
+
+        .card-container:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255,255,255,0.18);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.56);
+        }
+
+        .card-container.rarity-special {
+            border-color: rgba(240, 206, 84, 0.24);
+            box-shadow: 0 14px 35px rgba(240, 206, 84, 0.08), 0 14px 35px rgba(0,0,0,0.42);
+        }
+
+        .card-container.rarity-champion {
+            border-color: rgba(90, 135, 255, 0.3);
+            box-shadow: 0 14px 35px rgba(70, 120, 255, 0.1), 0 14px 35px rgba(0,0,0,0.42);
+        }
+
+        .card-container.rarity-dream {
+            border-color: rgba(224, 132, 255, 0.3);
+            box-shadow: 0 14px 35px rgba(190, 80, 255, 0.11), 0 14px 35px rgba(0,0,0,0.42);
+        }
+
+        .card-container.rarity-toty {
+            border-color: rgba(69, 240, 155, 0.28);
+            box-shadow: 0 14px 35px rgba(69, 240, 155, 0.09), 0 14px 35px rgba(0,0,0,0.42);
+        }
+
+        @keyframes cardIn {
+            from {
+                opacity: 0;
+                transform: translateY(14px) scale(0.985);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* === CARD IMAGE === */
         .card-image-wrapper {
             position: relative;
             width: 100%;
-            border-radius: 8px;
-            margin-bottom: 12px;
+            margin-bottom: 13px;
+            padding: 10px;
+            border-radius: 14px;
+            cursor: zoom-in;
+            z-index: 1;
             transform-style: preserve-3d;
             will-change: transform;
-            cursor: zoom-in; /* Magnifying glass cursor tells people they can click! */
-            z-index: 1;
+            background:
+                radial-gradient(circle at 50% 12%, rgba(255,255,255,0.16), transparent 35%),
+                linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.018));
+            border: 1px solid rgba(255,255,255,0.07);
         }
 
-        /* Holographic Light Shine Layer */
         .holo-glare {
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            border-radius: 8px;
+            inset: 10px;
+            border-radius: 10px;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.25s ease;
@@ -131,152 +345,304 @@ multiple turns.
             mix-blend-mode: screen;
         }
 
-        .card-image { 
-            width: 100%; 
-            border-radius: 8px; 
+        .card-image {
+            width: 100%;
             display: block;
+            border-radius: 10px;
             pointer-events: none;
             position: relative;
             z-index: 1;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 9px 20px rgba(0,0,0,0.42);
+            background: #111;
         }
-        
-        .card-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: flex-start; 
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
             gap: 10px;
-            margin-top: 4px;
-            margin-bottom: 12px; 
+            margin: 2px 0 12px;
             padding: 0 4px;
+            position: relative;
+            z-index: 1;
         }
-        .card-title { 
-            font-size: 15px; 
-            font-weight: 700; 
-            line-height: 1.3;
-            letter-spacing: 0.5px;
-            color: #ffffff; 
-            margin: 0; 
+
+        .card-title {
+            margin: 0;
+            color: #fff;
+            font-size: 15px;
+            line-height: 1.25;
+            font-weight: 900;
+            letter-spacing: 0.35px;
             word-break: break-word;
         }
-        .card-rating { 
-            white-space: nowrap; 
-            flex-shrink: 0; 
-            background: rgba(255, 215, 0, 0.12); 
-            color: #ffd700; 
-            border: 1px solid rgba(255, 215, 0, 0.35);
-            font-weight: 800; 
-            padding: 3px 8px; 
-            border-radius: 6px; 
-            font-size: 12px; 
-            letter-spacing: 0.5px;
+
+        .card-rating {
+            flex-shrink: 0;
+            white-space: nowrap;
+            padding: 4px 8px;
+            border-radius: 8px;
+            background: rgba(255, 215, 0, 0.13);
+            color: var(--gold);
+            border: 1px solid rgba(255, 215, 0, 0.36);
+            font-size: 12px;
+            font-weight: 950;
+            letter-spacing: 0.4px;
         }
-        
-        /* === TRANSLUCENT ESPORTS BADGES === */
-        .tags { 
-            display: flex; 
-            flex-wrap: wrap; 
-            gap: 6px; 
-            padding: 0 4px;
+
+        /* === TAGS === */
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 0 4px 2px;
+            position: relative;
+            z-index: 1;
         }
-        .tag { 
-            padding: 3px 8px; 
-            border-radius: 6px; 
-            font-size: 11px; 
-            font-weight: 600; 
-            letter-spacing: 0.5px;
+
+        .tag {
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 10.5px;
+            font-weight: 850;
+            letter-spacing: 0.55px;
+            text-transform: uppercase;
         }
-        
-        /* Position Badges */
+
         .tag-FW { background: rgba(209, 40, 40, 0.2); color: #ff5e5e; border: 1px solid rgba(209, 40, 40, 0.45); }
         .tag-MF { background: rgba(252, 232, 35, 0.18); color: #ffea3b; border: 1px solid rgba(252, 232, 35, 0.45); }
         .tag-DF { background: rgba(45, 219, 75, 0.18); color: #4ee86e; border: 1px solid rgba(45, 219, 75, 0.45); }
         .tag-GK { background: rgba(42, 111, 214, 0.2); color: #619dff; border: 1px solid rgba(42, 111, 214, 0.45); }
-        
-        /* Rarity Badges */
-        .tag-Legendary { background: rgba(255, 255, 255, 0.06); color: #a6adb5; border: 1px solid rgba(255, 255, 255, 0.15); }
+
+        .tag-Legendary { background: rgba(255, 255, 255, 0.06); color: #b6bdc8; border: 1px solid rgba(255, 255, 255, 0.16); }
         .tag-Special { background: rgba(212, 175, 55, 0.15); color: #f0ce54; border: 1px solid rgba(212, 175, 55, 0.4); }
-        
-        /* Special Edition Badges */
-        [class*="tag-Champion"] { background: rgba(13, 58, 153, 0.25); color: #78a2ff; border: 1px solid rgba(13, 58, 153, 0.5); }
-        [class*="tag-Classic"] { background: rgba(255, 255, 255, 0.08); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.25); }
-        [class*="tag-Dream-Star"] { background: rgba(147, 34, 201, 0.22); color: #e084ff; border: 1px solid rgba(147, 34, 201, 0.5); }
-        [class*="tag-Kick-Off"] { background: rgba(201, 22, 82, 0.22); color: #ff75a4; border: 1px solid rgba(201, 22, 82, 0.5); }
-        [class*="tag-Toty"] { background: rgba(0, 143, 68, 0.22); color: #45f09b; border: 1px solid rgba(0, 143, 68, 0.5); }
-        
-        /* === FULLSCREEN LIGHTBOX MODAL === */
+
+        [class*="tag-Champion"] { background: rgba(13, 58, 153, 0.25); color: #78a2ff; border: 1px solid rgba(13, 58, 153, 0.5); }*
+        [class*="tag-Classic"] { background: rgba(255, 255, 255, 0.08); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.25); }*
+        [class*="tag-Dream-Star"] { background: rgba(147, 34, 201, 0.22); color: #e084ff; border: 1px solid rgba(147, 34, 201, 0.5); }*
+        [class*="tag-Kick-Off"] { background: rgba(201, 22, 82, 0.22); color: #ff75a4; border: 1px solid rgba(201, 22, 82, 0.5); }*
+        [class*="tag-Toty"], [class*="tag-TOTY"] { background: rgba(0, 143, 68, 0.22); color: #45f09b; border: 1px solid rgba(0, 143, 68, 0.5); }
+
+        /* === MODAL === */
         .modal-overlay {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            inset: 0;
             z-index: 1000;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 22px;
+            background: rgba(0, 0, 0, 0.84);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.25s ease;
-            padding: 20px;
         }
+
         .modal-overlay.active {
             opacity: 1;
             pointer-events: auto;
         }
+
         .modal-content {
             position: relative;
-            max-width: 400px;
-            width: 100%;
+            max-width: 410px;
+            width: min(410px, 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
-            transform: scale(0.85);
+            transform: scale(0.88) translateY(10px);
             transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
+
         .modal-overlay.active .modal-content {
-            transform: scale(1);
+            transform: scale(1) translateY(0);
         }
+
         .modal-image {
             width: 100%;
-            border-radius: 12px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            box-shadow: 0 28px 80px rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: #111;
         }
+
         .modal-caption {
             margin-top: 15px;
-            font-size: 18px;
-            font-weight: 800;
-            color: #ffffff;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #fff;
             text-align: center;
-            letter-spacing: 0.5px;
+            font-size: 16px;
+            font-weight: 950;
+            letter-spacing: 0.4px;
         }
+
+        .modal-caption span {
+            color: var(--gold);
+            margin-left: 8px;
+        }
+
         .modal-close {
             position: absolute;
-            top: -45px;
+            top: -48px;
             right: 0;
-            color: #ffffff;
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            color: #fff;
             font-size: 32px;
-            font-weight: bold;
+            font-weight: 800;
             cursor: pointer;
-            transition: color 0.2s;
+            transition: color 0.2s, transform 0.2s;
+            user-select: none;
         }
-        .modal-close:hover { color: #ffd700; }
 
+        .modal-close:hover {
+            color: var(--gold);
+            transform: scale(1.08);
+        }
+
+        /* === SKELETON === */
+        .skeleton {
+            background: linear-gradient(
+                90deg,
+                rgba(255,255,255,0.045),
+                rgba(255,255,255,0.12),
+                rgba(255,255,255,0.045)
+            );
+            background-size: 220% 100%;
+            animation: shimmer 1.35s infinite linear;
+            border-radius: 12px;
+        }
+
+        .skeleton-image {
+            height: 330px;
+            margin-bottom: 14px;
+        }
+
+        .skeleton-line {
+            height: 15px;
+            margin: 8px 4px;
+        }
+
+        .skeleton-line.wide {
+            width: 72%;
+        }
+
+        .skeleton-line.small {
+            width: 44%;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 220% 0; }
+            100% { background-position: -220% 0; }
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            padding: 34px 20px;
+            text-align: center;
+            color: #aab0ba;
+            border: 1px dashed rgba(255,255,255,0.16);
+            background: rgba(255,255,255,0.035);
+            border-radius: 18px;
+        }
+
+        .empty-state strong {
+            color: #fff;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 800px) {
+            body {
+                padding: 22px 13px 40px;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .controls {
+                justify-content: stretch;
+            }
+
+            select,
+            input[type="text"],
+            button {
+                width: 100%;
+            }
+
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .summary-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 9px;
+            }
+
+            .summary-card {
+                padding: 14px 8px;
+            }
+
+            .summary-card .value {
+                font-size: 21px;
+            }
+
+            .hero {
+                padding: 30px 16px;
+            }
+
+            .hero h1 {
+                letter-spacing: -1.2px;
+            }
+        }
     </style>
 </head>
-<body>
 
-    <h1>⚽ My DLS Card Collection</h1>
-    
-    <!-- Controls & Search -->
+<body>
+    <header class="hero">
+        <div class="hero-kicker">Dream League Soccer</div>
+        <h1>My DLS Card Collection</h1>
+        <p>Browse, filter and showcase your custom DLS cards with ratings, positions, rarity badges and full-screen previews.</p>
+    </header>
+
+    <section class="summary-grid" id="summaryGrid">
+        <div class="summary-card">
+            <div class="value">—</div>
+            <div class="label">Total Cards</div>
+        </div>
+        <div class="summary-card">
+            <div class="value">—</div>
+            <div class="label">Average</div>
+        </div>
+        <div class="summary-card">
+            <div class="value">—</div>
+            <div class="label">Best Rating</div>
+        </div>
+        <div class="summary-card">
+            <div class="value">—</div>
+            <div class="label">Specials</div>
+        </div>
+    </section>
+
     <div class="controls">
-        <input type="text" id="searchInput" placeholder="🔍 Search player...">
+        <input type="text" id="searchInput" placeholder="🔍 Search player..." />
+
         <select id="sortSelect">
-            <option value="ratingDesc">Sort by Rating (High to Low)</option>
-            <option value="ratingAsc">Sort by Rating (Low to High)</option>
-            <option value="nameAsc">Sort by Name (A-Z)</option>
+            <option value="ratingDesc">Sort by Rating: High to Low</option>
+            <option value="ratingAsc">Sort by Rating: Low to High</option>
+            <option value="nameAsc">Sort by Name: A-Z</option>
+            <option value="nameDesc">Sort by Name: Z-A</option>
         </select>
+
         <select id="filterSelect">
             <option value="All">All Cards</option>
             <option value="Legendary">Legendary</option>
@@ -289,143 +655,316 @@ multiple turns.
             <option value="Classic">Classic</option>
             <option value="Dream Star">Dream Star</option>
             <option value="Kick-Off Star">Kick-Off Star</option>
+            <option value="Toty">TOTY</option>
+            <option value="TOTY">TOTY Uppercase</option>
         </select>
+
+        <button id="resetButton" type="button">Reset</button>
     </div>
 
-    <!-- Live Counter -->
     <div class="stats-counter" id="statsCounter">Loading stats...</div>
 
-    <!-- Gallery -->
-    <div class="gallery" id="gallery"></div>
+    <main class="gallery" id="gallery"></main>
 
-    <!-- Lightbox Zoom Modal -->
     <div class="modal-overlay" id="cardModal">
         <div class="modal-content">
-            <span class="modal-close">&times;</span>
-            <img src="" alt="" class="modal-image" id="modalImage">
+            <span class="modal-close" id="modalClose">×</span>
+            <img src="" alt="" class="modal-image" id="modalImage" />
             <div class="modal-caption" id="modalCaption"></div>
         </div>
     </div>
 
     <script>
-        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzy7w0GcQzjNqNFsRennLi5WorAoS6XHZPiRJF4n-3amHhA7A9czTggF9gc7TUGXIsxdPFICRikf7s/pub?gid=266421028&single=true&output=csv"; 
-        
-        let myCards = []; 
-        const gallery = document.getElementById('gallery');
-        const searchInput = document.getElementById('searchInput');
-        const sortSelect = document.getElementById('sortSelect');
-        const filterSelect = document.getElementById('filterSelect');
-        const statsCounter = document.getElementById('statsCounter');
+        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzy7w0GcQzjNqNFsRennLi5WorAoS6XHZPiRJF4n-3amHhA7A9czTggF9gc7TUGXIsxdPFICRikf7s/pub?gid=266421028&single=true&output=csv";
 
-        // Modal elements
-        const cardModal = document.getElementById('cardModal');
-        const modalImage = document.getElementById('modalImage');
-        const modalCaption = document.getElementById('modalCaption');
+        let myCards = [];
+
+        const gallery = document.getElementById("gallery");
+        const searchInput = document.getElementById("searchInput");
+        const sortSelect = document.getElementById("sortSelect");
+        const filterSelect = document.getElementById("filterSelect");
+        const resetButton = document.getElementById("resetButton");
+        const statsCounter = document.getElementById("statsCounter");
+        const summaryGrid = document.getElementById("summaryGrid");
+
+        const cardModal = document.getElementById("cardModal");
+        const modalImage = document.getElementById("modalImage");
+        const modalCaption = document.getElementById("modalCaption");
+        const modalClose = document.getElementById("modalClose");
 
         const isDesktop = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
+        function escapeHTML(value) {
+            return String(value)
+                .replaceAll("&", "&")
+                .replaceAll("<", "<")
+                .replaceAll(">", ">")
+                .replaceAll('"', """)"
+                .replaceAll("'", "'");
+        }
+
+        function tagToClass(tag) {
+            return String(tag)
+                .trim()
+                .replace(/[^a-zA-Z0-9\s-]/g, "")
+                .replace(/\s+/g, "-");
+        }
+
+        function getImageSrc(image) {
+            const clean = String(image || "").trim();
+
+            if (!clean) {
+                return "https://via.placeholder.com/300x420/191919/ffffff?text=Image+Missing";
+            }
+
+            if (clean.startsWith("http://") || clean.startsWith("https://")) {
+                return clean;
+            }
+
+            if (/\.(webp|png|jpg|jpeg|gif)$/i.test(clean)) {
+                return `images/${clean}`;
+            }
+
+            return `images/${clean}.webp`;
+        }
+
+        function showSkeletons(count = 8) {
+            gallery.innerHTML = Array.from({ length: count }).map(() => `
+                <article class="card-container">
+                    <div class="skeleton skeleton-image"></div>
+                    <div class="skeleton skeleton-line wide"></div>
+                    <div class="skeleton skeleton-line small"></div>
+                </article>
+            `).join("");
+        }
+
+        function updateSummary(cards) {
+            const total = cards.length;
+            const avg = total ? (cards.reduce((sum, card) => sum + card.rating, 0) / total).toFixed(1) : "0.0";
+            const best = total ? Math.max(...cards.map(card => card.rating)) : 0;
+            const specials = cards.filter(card =>
+                card.tags.includes("Special") ||
+                card.tags.includes("Champion") ||
+                card.tags.includes("Dream Star") ||
+                card.tags.includes("Kick-Off Star") ||
+                card.tags.includes("Toty") ||
+                card.tags.includes("TOTY")
+            ).length;
+
+            summaryGrid.innerHTML = `
+                <div class="summary-card">
+                    <div class="value">${total}</div>
+                    <div class="label">Total Cards</div>
+                </div>
+                <div class="summary-card">
+                    <div class="value">★ ${avg}</div>
+                    <div class="label">Average</div>
+                </div>
+                <div class="summary-card">
+                    <div class="value">★ ${best}</div>
+                    <div class="label">Best Rating</div>
+                </div>
+                <div class="summary-card">
+                    <div class="value">${specials}</div>
+                    <div class="label">Specials</div>
+                </div>
+            `;
+        }
+
         async function loadData() {
+            showSkeletons();
+            statsCounter.innerHTML = "Loading cards...";
+
             try {
                 const response = await fetch(sheetURL);
-                const csvText = await response.text();
-                
-                const rows = csvText.split(/\r?\n/).slice(1); 
-                
-                myCards = rows.filter(row => row.trim() !== '').map(row => {
-                    const cols = row.split(','); 
-                    
-                    const name = cols[0] ? cols[0].trim() : "Unknown";
-                    const rating = cols[1] ? parseInt(cols[1].trim()) : 0;
-                    
-                    const tags = [cols[2], cols[3], cols[4]]
-                        .map(tag => tag ? tag.trim() : '')
-                        .filter(tag => tag !== '');
-                        
-                    const image = cols[5] ? cols[5].trim() : '';
 
-                    return { name, rating, tags, image };
+                if (!response.ok) {
+                    throw new Error(`HTTP error: ${response.status}`);
+                }
+
+                const csvText = await response.text();
+
+                const parsed = Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true
                 });
-                
-                updateGallery(); 
+
+                myCards = parsed.data.map(row => {
+                    const name = row.Name || row.name || row.Player || row.player || "Unknown";
+                    const rating = parseInt(row.Rating || row.rating || row.OVR || row.ovr || 0, 10);
+
+                    const tags = [
+                        row.Tag1 || row.tag1 || row.Position || row.position,
+                        row.Tag2 || row.tag2 || row.Rarity || row.rarity,
+                        row.Tag3 || row.tag3 || row.Edition || row.edition
+                    ]
+                        .map(tag => tag ? String(tag).trim() : "")
+                        .filter(Boolean);
+
+                    const image = row.Image || row.image || row.File || row.file || row.Filename || row.filename || "";
+
+                    return {
+                        name: String(name).trim(),
+                        rating: Number.isFinite(rating) ? rating : 0,
+                        tags,
+                        image: String(image).trim()
+                    };
+                }).filter(card => card.name && card.name !== "Unknown");
+
+                updateSummary(myCards);
+                updateGallery();
+
             } catch (error) {
                 console.error("Error loading data:", error);
-                gallery.innerHTML = "<p style='color:white; text-align:center;'>Failed to load players.</p>";
+
+                statsCounter.innerHTML = `Could not load cards.`;
+                gallery.innerHTML = `
+                    <div class="empty-state">
+                        <strong>Failed to load players.</strong><br>
+                        Check your Google Sheet link, published CSV settings, or column names.
+                    </div>
+                `;
             }
         }
 
+        function applyRarityClasses(cardElement, card) {
+            if (card.tags.includes("Special")) {
+                cardElement.classList.add("rarity-special");
+            }
+
+            if (card.tags.includes("Champion")) {
+                cardElement.classList.add("rarity-champion");
+            }
+
+            if (card.tags.includes("Dream Star")) {
+                cardElement.classList.add("rarity-dream");
+            }
+
+            if (card.tags.includes("Toty") || card.tags.includes("TOTY")) {
+                cardElement.classList.add("rarity-toty");
+            }
+        }
+
+        function openModal(card) {
+            modalImage.src = getImageSrc(card.image);
+            modalImage.alt = card.name;
+            modalCaption.innerHTML = `${escapeHTML(card.name)} <span>★ ${escapeHTML(card.rating)}</span>`;
+            cardModal.classList.add("active");
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeModal() {
+            cardModal.classList.remove("active");
+            document.body.style.overflow = "";
+        }
+
         function renderCards(cardsArray) {
-            gallery.innerHTML = ''; 
-            
+            gallery.innerHTML = "";
+
             if (cardsArray.length === 0) {
-                gallery.innerHTML = "<p style='color:#888; text-align:center; width:100%; grid-column: 1/-1;'>No players found matching your search.</p>";
+                gallery.innerHTML = `
+                    <div class="empty-state">
+                        <strong>No players found.</strong><br>
+                        Try changing your search or filters.
+                    </div>
+                `;
                 return;
             }
 
-            cardsArray.forEach(card => {
-                let tagsHTML = '';
-                card.tags.forEach(tag => {
-                    const tagClass = tag.replace(/\s+/g, '-');
-                    tagsHTML += `<span class="tag tag-${tagClass}">${tag}</span>`;
-                });
+            cardsArray.forEach((card, index) => {
+                const tagsHTML = card.tags.map(tag => {
+                    const safeTag = escapeHTML(tag);
+                    const tagClass = tagToClass(tag);
+                    return `<span class="tag tag-${tagClass}">${safeTag}</span>`;
+                }).join("");
 
-                const cardElement = document.createElement('div');
-                cardElement.className = 'card-container'; 
-                
+                const cardElement = document.createElement("article");
+                cardElement.className = "card-container";
+                cardElement.style.animationDelay = `${Math.min(index* 35, 350)}ms`;*
+
+                applyRarityClasses(cardElement, card);
+
                 cardElement.innerHTML = `
-                    <div class="card-image-wrapper">
+                    <div class="card-image-wrapper" title="Click to zoom">
                         <div class="holo-glare"></div>
-                        <img src="images/${card.image}.webp" alt="${card.name}" class="card-image" onerror="this.src='https://via.placeholder.com/300x400/191919/ffffff?text=Image+Missing'">
+                        <img
+                            src="${escapeHTML(getImageSrc(card.image))}"
+                            alt="${escapeHTML(card.name)}"
+                            class="card-image"
+                            loading="lazy"
+                            onerror="this.src='https://via.placeholder.com/300x420/191919/ffffff?text=Image+Missing'"
+                        >
                     </div>
+
                     <div class="card-header">
-                        <div class="card-title">${card.name}</div>
-                        <div class="card-rating">★ ${card.rating}</div>
+                        <div class="card-title">${escapeHTML(card.name)}</div>
+                        <div class="card-rating">★ ${escapeHTML(card.rating)}</div>
                     </div>
+
                     <div class="tags">${tagsHTML}</div>
                 `;
 
-                const imageWrapper = cardElement.querySelector('.card-image-wrapper');
-                const holoGlare = imageWrapper.querySelector('.holo-glare');
+                const imageWrapper = cardElement.querySelector(".card-image-wrapper");
+                const holoGlare = imageWrapper.querySelector(".holo-glare");
 
-                // CLICK TO ZOOM (Works on both Mobile and Desktop)
-                imageWrapper.addEventListener('click', () => {
-                    modalImage.src = `images/${card.image}.webp`;
-                    modalCaption.innerHTML = `${card.name} <span style="color:#ffd700; margin-left:8px;">★ ${card.rating}</span>`;
-                    cardModal.classList.add('active');
+                imageWrapper.addEventListener("click", () => {
+                    openModal(card);
                 });
 
-                // 🪄 DESKTOP ONLY: Dramatic Pop-Out 3D Tilt + Holo Glare 🪄
                 if (isDesktop) {
-                    imageWrapper.addEventListener('mouseenter', () => {
-                        imageWrapper.style.transition = 'transform 0.08s ease-out';
-                        imageWrapper.style.zIndex = '10'; // Brings card above neighbors while popping
-                        if (holoGlare) holoGlare.style.opacity = '1';
-                    });
-
-                    imageWrapper.addEventListener('mousemove', (e) => {
-                        const rect = imageWrapper.getBoundingClientRect();
-                        const x = e.clientX - rect.left;
-                        const y = e.clientY - rect.top;
-                        
-                        const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -14;
-                        const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 14;
-                        
-                        // Increased scale to 1.08 + higher Z-axis drop shadow for true pop-out effect!
-                        imageWrapper.style.transform = `perspective(800px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(1.08) translateY(-4px)`;
-                        imageWrapper.style.boxShadow = '0 25px 45px rgba(0, 0, 0, 0.85)';
+                    imageWrapper.addEventListener("mouseenter", () => {
+                        imageWrapper.style.transition = "transform 0.08s ease-out";
+                        imageWrapper.style.zIndex = "10";
 
                         if (holoGlare) {
-                            const percentX = (x / rect.width) * 100;
-                            const percentY = (y / rect.height) * 100;
-                            holoGlare.style.background = `radial-gradient(circle at ${percentX}% ${percentY}%, rgba(255, 255, 255, 0.38) 0%, rgba(255, 215, 0, 0.2) 25%, rgba(255, 105, 180, 0.14) 45%, rgba(0, 212, 255, 0.1) 65%, transparent 80%)`;
+                            holoGlare.style.opacity = "1";
                         }
                     });
 
-                    imageWrapper.addEventListener('mouseleave', () => {
-                        imageWrapper.style.transition = 'all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1)';
-                        imageWrapper.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) scale(1) translateY(0px)';
-                        imageWrapper.style.boxShadow = 'none';
-                        imageWrapper.style.zIndex = '1';
-                        if (holoGlare) holoGlare.style.opacity = '0';
+                    imageWrapper.addEventListener("mousemove", event => {
+                        const rect = imageWrapper.getBoundingClientRect();
+                        const x = event.clientX - rect.left;
+                        const y = event.clientY - rect.top;
+
+                        const rotateX = ((y - rect.height / 2) / (rect.height / 2)) *-14;*
+                        const rotateY = ((x - rect.width / 2) / (rect.width / 2))* 14;*
+
+                        imageWrapper.style.transform = `
+                            perspective(850px)
+                            rotateX(${rotateX.toFixed(2)}deg)
+                            rotateY(${rotateY.toFixed(2)}deg)
+                            scale(1.075)
+                            translateY(-4px)
+                        `;
+
+                        imageWrapper.style.boxShadow = "0 25px 50px rgba(0, 0, 0, 0.82)";
+
+                        if (holoGlare) {
+                            const percentX = (x / rect.width) *100;*
+                            const percentY = (y / rect.height)* 100;*
+
+                            holoGlare.style.background = `
+                                radial-gradient(
+                                    circle at ${percentX}% ${percentY}%,
+                                    rgba(255, 255, 255, 0.42) 0%,
+                                    rgba(255, 215, 0, 0.2) 24%,
+                                    rgba(255, 105, 180, 0.14) 43%,
+                                    rgba(0, 212, 255, 0.1) 62%,
+                                    transparent 80%
+                                )
+                            `;
+                        }
+                    });
+
+                    imageWrapper.addEventListener("mouseleave", () => {
+                        imageWrapper.style.transition = "all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1)";
+                        imageWrapper.style.transform = "perspective(850px) rotateX(0deg) rotateY(0deg) scale(1) translateY(0)";
+                        imageWrapper.style.boxShadow = "none";
+                        imageWrapper.style.zIndex = "1";
+
+                        if (holoGlare) {
+                            holoGlare.style.opacity = "0";
+                        }
                     });
                 }
 
@@ -433,43 +972,46 @@ multiple turns.
             });
         }
 
-        // Close Modal Handlers
-        cardModal.addEventListener('click', (e) => {
-            if (e.target === cardModal || e.target.classList.contains('modal-close')) {
-                cardModal.classList.remove('active');
-            }
-        });
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') cardModal.classList.remove('active');
-        });
-
         function updateGallery() {
             let filteredCards = [...myCards];
-            
+
             const searchQuery = searchInput.value.toLowerCase().trim();
-            if (searchQuery !== "") {
-                filteredCards = filteredCards.filter(card => card.name.toLowerCase().includes(searchQuery));
+
+            if (searchQuery) {
+                filteredCards = filteredCards.filter(card =>
+                    card.name.toLowerCase().includes(searchQuery) ||
+                    card.tags.some(tag => tag.toLowerCase().includes(searchQuery))
+                );
             }
 
             const filterValue = filterSelect.value;
+
             if (filterValue !== "All") {
                 filteredCards = filteredCards.filter(card => card.tags.includes(filterValue));
             }
-            
+
             const sortValue = sortSelect.value;
+
             if (sortValue === "ratingDesc") {
-                filteredCards.sort((a, b) => b.rating - a.rating);
+                filteredCards.sort((a, b) => b.rating - a.rating || a.name.localeCompare(b.name));
             } else if (sortValue === "ratingAsc") {
-                filteredCards.sort((a, b) => a.rating - b.rating);
+                filteredCards.sort((a, b) => a.rating - b.rating || a.name.localeCompare(b.name));
             } else if (sortValue === "nameAsc") {
                 filteredCards.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (sortValue === "nameDesc") {
+                filteredCards.sort((a, b) => b.name.localeCompare(a.name));
             }
-            
+
             const count = filteredCards.length;
+
             if (count > 0) {
                 const totalRating = filteredCards.reduce((sum, card) => sum + card.rating, 0);
                 const avg = (totalRating / count).toFixed(1);
-                statsCounter.innerHTML = `Showing <span>${count}</span> Card${count !== 1 ? 's' : ''} | Avg Rating: <span>★ ${avg}</span>`;
+
+                statsCounter.innerHTML = `
+                    Showing <span>${count}</span> Card${count !== 1 ? "s" : ""}
+                    | Avg Rating: <span>★ ${avg}</span>
+                `;
             } else {
                 statsCounter.innerHTML = `Showing <span>0</span> Cards`;
             }
@@ -477,9 +1019,30 @@ multiple turns.
             renderCards(filteredCards);
         }
 
-        searchInput.addEventListener('input', updateGallery);
-        sortSelect.addEventListener('change', updateGallery);
-        filterSelect.addEventListener('change', updateGallery);
+        searchInput.addEventListener("input", updateGallery);
+        sortSelect.addEventListener("change", updateGallery);
+        filterSelect.addEventListener("change", updateGallery);
+
+        resetButton.addEventListener("click", () => {
+            searchInput.value = "";
+            sortSelect.value = "ratingDesc";
+            filterSelect.value = "All";
+            updateGallery();
+        });
+
+        cardModal.addEventListener("click", event => {
+            if (event.target === cardModal) {
+                closeModal();
+            }
+        });
+
+        modalClose.addEventListener("click", closeModal);
+
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape") {
+                closeModal();
+            }
+        });
 
         loadData();
     </script>
