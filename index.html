@@ -86,10 +86,13 @@
             margin-bottom: 12px; 
             display: block;
         }
+        
+        /* FIXED HEADER: Keeps rating badge unsquished when long names wrap! */
         .card-header { 
             display: flex; 
             justify-content: space-between; 
-            align-items: center; 
+            align-items: flex-start; 
+            gap: 10px;
             margin-top: 4px;
             margin-bottom: 12px; 
             padding: 0 4px;
@@ -97,16 +100,20 @@
         .card-title { 
             font-size: 15px; 
             font-weight: 700; 
+            line-height: 1.3;
             letter-spacing: 0.5px;
             color: #ffffff; 
             margin: 0; 
+            word-break: break-word;
         }
         .card-rating { 
+            white-space: nowrap; /* Prevents ★ and 92 from breaking into two lines */
+            flex-shrink: 0; /* Prevents long names from squishing the box */
             background: rgba(255, 215, 0, 0.12); 
             color: #ffd700; 
             border: 1px solid rgba(255, 215, 0, 0.35);
             font-weight: 800; 
-            padding: 2px 8px; 
+            padding: 3px 8px; 
             border-radius: 6px; 
             font-size: 12px; 
             letter-spacing: 0.5px;
@@ -127,22 +134,22 @@
             letter-spacing: 0.5px;
         }
         
-        /* Position Badges (Neon Translucent) */
-        .tag-FW { background: rgba(209, 40, 40, 0.15); color: #ff5e5e; border: 1px solid rgba(209, 40, 40, 0.35); }
-        .tag-MF { background: rgba(252, 232, 35, 0.12); color: #ffea3b; border: 1px solid rgba(252, 232, 35, 0.35); }
-        .tag-DF { background: rgba(45, 219, 75, 0.12); color: #4ee86e; border: 1px solid rgba(45, 219, 75, 0.35); }
-        .tag-GK { background: rgba(42, 111, 214, 0.15); color: #619dff; border: 1px solid rgba(42, 111, 214, 0.35); }
+        /* Position Badges (Exact DLS Colors) */
+        .tag-FW { background: rgba(209, 40, 40, 0.2); color: #ff5e5e; border: 1px solid rgba(209, 40, 40, 0.45); }
+        .tag-MF { background: rgba(252, 232, 35, 0.18); color: #ffea3b; border: 1px solid rgba(252, 232, 35, 0.45); }
+        .tag-DF { background: rgba(45, 219, 75, 0.18); color: #4ee86e; border: 1px solid rgba(45, 219, 75, 0.45); }
+        .tag-GK { background: rgba(42, 111, 214, 0.2); color: #619dff; border: 1px solid rgba(42, 111, 214, 0.45); }
         
         /* Rarity Badges */
-        .tag-Legendary { background: rgba(255, 255, 255, 0.05); color: #a6adb5; border: 1px solid rgba(255, 255, 255, 0.12); }
-        .tag-Special { background: rgba(212, 175, 55, 0.12); color: #f0ce54; border: 1px solid rgba(212, 175, 55, 0.35); }
+        .tag-Legendary { background: rgba(255, 255, 255, 0.06); color: #a6adb5; border: 1px solid rgba(255, 255, 255, 0.15); }
+        .tag-Special { background: rgba(212, 175, 55, 0.15); color: #f0ce54; border: 1px solid rgba(212, 175, 55, 0.4); }
         
-        /* Special Edition Badges */
-        .tag-Champion { background: rgba(13, 58, 153, 0.2); color: #78a2ff; border: 1px solid rgba(13, 58, 153, 0.45); }
-        .tag-Classic { background: rgba(255, 255, 255, 0.08); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.25); }
-        .tag-Dream-Star { background: rgba(147, 34, 201, 0.18); color: #d878ff; border: 1px solid rgba(147, 34, 201, 0.4); }
-        .tag-Kick-Off-Star { background: rgba(201, 22, 82, 0.18); color: #ff6e9d; border: 1px solid rgba(201, 22, 82, 0.4); }
-        [class*="tag-Toty"] { background: rgba(0, 143, 68, 0.18); color: #45f09b; border: 1px solid rgba(0, 143, 68, 0.4); }
+        /* Special Edition Badges (Wildcards catch any year attached, like "Dream Star 2025") */
+        [class*="tag-Champion"] { background: rgba(13, 58, 153, 0.25); color: #78a2ff; border: 1px solid rgba(13, 58, 153, 0.5); }
+        [class*="tag-Classic"] { background: rgba(255, 255, 255, 0.08); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.25); }
+        [class*="tag-Dream-Star"] { background: rgba(147, 34, 201, 0.22); color: #e084ff; border: 1px solid rgba(147, 34, 201, 0.5); }
+        [class*="tag-Kick-Off"] { background: rgba(201, 22, 82, 0.22); color: #ff75a4; border: 1px solid rgba(201, 22, 82, 0.5); }
+        [class*="tag-Toty"] { background: rgba(0, 143, 68, 0.22); color: #45f09b; border: 1px solid rgba(0, 143, 68, 0.5); }
         
     </style>
 </head>
