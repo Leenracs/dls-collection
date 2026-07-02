@@ -79,7 +79,7 @@
             margin: 0 auto; 
         }
 
-        /* === 3D TILT CARDS + HOLO OVERLAY === */
+        /* === GROUNDED SHOWCASE CONTAINER === */
         .card-container { 
             position: relative;
             background: linear-gradient(145deg, #18181d, #121215);
@@ -89,17 +89,29 @@
             display: flex; 
             flex-direction: column; 
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-            transform-style: preserve-3d;
-            will-change: transform;
-            overflow: hidden; /* Keeps holographic glare tucked neatly inside rounded corners */
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .card-container:hover {
+            border-color: rgba(255, 255, 255, 0.16);
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.65);
         }
 
-        /* Holographic Light Shine Layer */
+        /* 🪄 WRAPPER FOR 3D TILTING CARD ONLY 🪄 */
+        .card-image-wrapper {
+            position: relative;
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            transform-style: preserve-3d;
+            will-change: transform;
+            cursor: pointer;
+        }
+
+        /* Holographic Light Shine Layer (Applies strictly over the image) */
         .holo-glare {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            border-radius: 14px;
+            border-radius: 8px;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.25s ease;
@@ -110,11 +122,11 @@
         .card-image { 
             width: 100%; 
             border-radius: 8px; 
-            margin-bottom: 12px; 
             display: block;
             pointer-events: none;
             position: relative;
-            z-index: 2;
+            z-index: 1;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         
         .card-header { 
@@ -125,8 +137,6 @@
             margin-top: 4px;
             margin-bottom: 12px; 
             padding: 0 4px;
-            position: relative;
-            z-index: 2;
         }
         .card-title { 
             font-size: 15px; 
@@ -156,8 +166,6 @@
             flex-wrap: wrap; 
             gap: 6px; 
             padding: 0 4px;
-            position: relative;
-            z-index: 2;
         }
         .tag { 
             padding: 3px 8px; 
@@ -278,10 +286,12 @@
                 const cardElement = document.createElement('div');
                 cardElement.className = 'card-container'; 
                 
-                // Added the <div class="holo-glare"> layer for dynamic light reflection
+                // Wrapped the image in its own 3D showcase box (.card-image-wrapper)
                 cardElement.innerHTML = `
-                    <div class="holo-glare"></div>
-                    <img src="images/${card.image}.webp" alt="${card.name}" class="card-image" onerror="this.src='https://via.placeholder.com/300x400/191919/ffffff?text=Image+Missing'">
+                    <div class="card-image-wrapper">
+                        <div class="holo-glare"></div>
+                        <img src="images/${card.image}.webp" alt="${card.name}" class="card-image" onerror="this.src='https://via.placeholder.com/300x400/191919/ffffff?text=Image+Missing'">
+                    </div>
                     <div class="card-header">
                         <div class="card-title">${card.name}</div>
                         <div class="card-rating">★ ${card.rating}</div>
@@ -289,40 +299,39 @@
                     <div class="tags">${tagsHTML}</div>
                 `;
 
-                // 🪄 DESKTOP ONLY: 3D Tilt + Holographic Mouse Tracking 🪄
+                // 🪄 DESKTOP ONLY: 3D Tilt + Holo applied strictly to the card graphic wrapper 🪄
                 if (isDesktop) {
-                    const holoGlare = cardElement.querySelector('.holo-glare');
+                    const imageWrapper = cardElement.querySelector('.card-image-wrapper');
+                    const holoGlare = imageWrapper.querySelector('.holo-glare');
 
-                    cardElement.addEventListener('mouseenter', () => {
-                        cardElement.style.transition = 'transform 0.08s ease-out, border-color 0.25s ease, box-shadow 0.25s ease';
-                        cardElement.style.borderColor = 'rgba(255, 255, 255, 0.28)';
+                    imageWrapper.addEventListener('mouseenter', () => {
+                        imageWrapper.style.transition = 'transform 0.08s ease-out';
                         if (holoGlare) holoGlare.style.opacity = '1';
                     });
 
-                    cardElement.addEventListener('mousemove', (e) => {
-                        const rect = cardElement.getBoundingClientRect();
+                    imageWrapper.addEventListener('mousemove', (e) => {
+                        const rect = imageWrapper.getBoundingClientRect();
                         const x = e.clientX - rect.left;
                         const y = e.clientY - rect.top;
                         
-                        const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -8;
-                        const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 8;
+                        // Slightly more dynamic tilt since the card is smaller than the full box!
+                        const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -12;
+                        const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 12;
                         
-                        cardElement.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-6px) scale(1.02)`;
-                        cardElement.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.7)';
+                        imageWrapper.style.transform = `perspective(800px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(1.04)`;
+                        imageWrapper.style.boxShadow = '0 20px 35px rgba(0, 0, 0, 0.75)';
 
-                        // Move holographic shine directly under mouse cursor
                         if (holoGlare) {
                             const percentX = (x / rect.width) * 100;
                             const percentY = (y / rect.height) * 100;
-                            holoGlare.style.background = `radial-gradient(circle at ${percentX}% ${percentY}%, rgba(255, 255, 255, 0.25) 0%, rgba(255, 215, 0, 0.12) 25%, rgba(255, 105, 180, 0.09) 45%, rgba(0, 212, 255, 0.06) 65%, transparent 80%)`;
+                            holoGlare.style.background = `radial-gradient(circle at ${percentX}% ${percentY}%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 215, 0, 0.18) 25%, rgba(255, 105, 180, 0.12) 45%, rgba(0, 212, 255, 0.09) 65%, transparent 80%)`;
                         }
                     });
 
-                    cardElement.addEventListener('mouseleave', () => {
-                        cardElement.style.transition = 'all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
-                        cardElement.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px) scale(1)';
-                        cardElement.style.borderColor = 'rgba(255, 255, 255, 0.06)';
-                        cardElement.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.5)';
+                    imageWrapper.addEventListener('mouseleave', () => {
+                        imageWrapper.style.transition = 'all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                        imageWrapper.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) scale(1)';
+                        imageWrapper.style.boxShadow = 'none';
                         if (holoGlare) holoGlare.style.opacity = '0';
                     });
                 }
