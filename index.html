@@ -96,7 +96,7 @@
             box-shadow: 0 14px 30px rgba(0, 0, 0, 0.65);
         }
 
-        /* 🪄 WRAPPER FOR 3D TILTING CARD ONLY 🪄 */
+        /* 🪄 WRAPPER FOR POP-OUT 3D CARD 🪄 */
         .card-image-wrapper {
             position: relative;
             width: 100%;
@@ -104,10 +104,11 @@
             margin-bottom: 12px;
             transform-style: preserve-3d;
             will-change: transform;
-            cursor: pointer;
+            cursor: zoom-in; /* Magnifying glass cursor tells people they can click! */
+            z-index: 1;
         }
 
-        /* Holographic Light Shine Layer (Applies strictly over the image) */
+        /* Holographic Light Shine Layer */
         .holo-glare {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -192,6 +193,65 @@
         [class*="tag-Kick-Off"] { background: rgba(201, 22, 82, 0.22); color: #ff75a4; border: 1px solid rgba(201, 22, 82, 0.5); }
         [class*="tag-Toty"] { background: rgba(0, 143, 68, 0.22); color: #45f09b; border: 1px solid rgba(0, 143, 68, 0.5); }
         
+        /* === FULLSCREEN LIGHTBOX MODAL === */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            position: relative;
+            max-width: 400px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: scale(0.85);
+            transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        .modal-image {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .modal-caption {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: 800;
+            color: #ffffff;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+        .modal-close {
+            position: absolute;
+            top: -45px;
+            right: 0;
+            color: #ffffff;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .modal-close:hover { color: #ffd700; }
+
     </style>
 </head>
 <body>
@@ -227,6 +287,15 @@
     <!-- Gallery -->
     <div class="gallery" id="gallery"></div>
 
+    <!-- Lightbox Zoom Modal -->
+    <div class="modal-overlay" id="cardModal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <img src="" alt="" class="modal-image" id="modalImage">
+            <div class="modal-caption" id="modalCaption"></div>
+        </div>
+    </div>
+
     <script>
         const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzy7w0GcQzjNqNFsRennLi5WorAoS6XHZPiRJF4n-3amHhA7A9czTggF9gc7TUGXIsxdPFICRikf7s/pub?gid=266421028&single=true&output=csv"; 
         
@@ -236,6 +305,11 @@
         const sortSelect = document.getElementById('sortSelect');
         const filterSelect = document.getElementById('filterSelect');
         const statsCounter = document.getElementById('statsCounter');
+
+        // Modal elements
+        const cardModal = document.getElementById('cardModal');
+        const modalImage = document.getElementById('modalImage');
+        const modalCaption = document.getElementById('modalCaption');
 
         const isDesktop = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
@@ -286,7 +360,6 @@
                 const cardElement = document.createElement('div');
                 cardElement.className = 'card-container'; 
                 
-                // Wrapped the image in its own 3D showcase box (.card-image-wrapper)
                 cardElement.innerHTML = `
                     <div class="card-image-wrapper">
                         <div class="holo-glare"></div>
@@ -299,13 +372,21 @@
                     <div class="tags">${tagsHTML}</div>
                 `;
 
-                // 🪄 DESKTOP ONLY: 3D Tilt + Holo applied strictly to the card graphic wrapper 🪄
-                if (isDesktop) {
-                    const imageWrapper = cardElement.querySelector('.card-image-wrapper');
-                    const holoGlare = imageWrapper.querySelector('.holo-glare');
+                const imageWrapper = cardElement.querySelector('.card-image-wrapper');
+                const holoGlare = imageWrapper.querySelector('.holo-glare');
 
+                // CLICK TO ZOOM (Works on both Mobile and Desktop)
+                imageWrapper.addEventListener('click', () => {
+                    modalImage.src = `images/${card.image}.webp`;
+                    modalCaption.innerHTML = `${card.name} <span style="color:#ffd700; margin-left:8px;">★ ${card.rating}</span>`;
+                    cardModal.classList.add('active');
+                });
+
+                // 🪄 DESKTOP ONLY: Dramatic Pop-Out 3D Tilt + Holo Glare 🪄
+                if (isDesktop) {
                     imageWrapper.addEventListener('mouseenter', () => {
                         imageWrapper.style.transition = 'transform 0.08s ease-out';
+                        imageWrapper.style.zIndex = '10'; // Brings card above neighbors while popping
                         if (holoGlare) holoGlare.style.opacity = '1';
                     });
 
@@ -314,24 +395,25 @@
                         const x = e.clientX - rect.left;
                         const y = e.clientY - rect.top;
                         
-                        // Slightly more dynamic tilt since the card is smaller than the full box!
-                        const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -12;
-                        const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 12;
+                        const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -14;
+                        const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 14;
                         
-                        imageWrapper.style.transform = `perspective(800px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(1.04)`;
-                        imageWrapper.style.boxShadow = '0 20px 35px rgba(0, 0, 0, 0.75)';
+                        // Increased scale to 1.08 + higher Z-axis drop shadow for true pop-out effect!
+                        imageWrapper.style.transform = `perspective(800px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(1.08) translateY(-4px)`;
+                        imageWrapper.style.boxShadow = '0 25px 45px rgba(0, 0, 0, 0.85)';
 
                         if (holoGlare) {
                             const percentX = (x / rect.width) * 100;
                             const percentY = (y / rect.height) * 100;
-                            holoGlare.style.background = `radial-gradient(circle at ${percentX}% ${percentY}%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 215, 0, 0.18) 25%, rgba(255, 105, 180, 0.12) 45%, rgba(0, 212, 255, 0.09) 65%, transparent 80%)`;
+                            holoGlare.style.background = `radial-gradient(circle at ${percentX}% ${percentY}%, rgba(255, 255, 255, 0.38) 0%, rgba(255, 215, 0, 0.2) 25%, rgba(255, 105, 180, 0.14) 45%, rgba(0, 212, 255, 0.1) 65%, transparent 80%)`;
                         }
                     });
 
                     imageWrapper.addEventListener('mouseleave', () => {
                         imageWrapper.style.transition = 'all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1)';
-                        imageWrapper.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) scale(1)';
+                        imageWrapper.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) scale(1) translateY(0px)';
                         imageWrapper.style.boxShadow = 'none';
+                        imageWrapper.style.zIndex = '1';
                         if (holoGlare) holoGlare.style.opacity = '0';
                     });
                 }
@@ -339,6 +421,16 @@
                 gallery.appendChild(cardElement);
             });
         }
+
+        // Close Modal Handlers
+        cardModal.addEventListener('click', (e) => {
+            if (e.target === cardModal || e.target.classList.contains('modal-close')) {
+                cardModal.classList.remove('active');
+            }
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') cardModal.classList.remove('active');
+        });
 
         function updateGallery() {
             let filteredCards = [...myCards];
