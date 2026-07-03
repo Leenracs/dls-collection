@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My DLS Card Collection</title>
+    <title>DLS Card Archive | Arnob Scarneel</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     
@@ -157,8 +157,6 @@
             transition: all 0.2s ease;
             text-transform: uppercase;
             letter-spacing: 1px;
-            
-            /* Mobile touch fixes */
             -webkit-tap-highlight-color: transparent;
             user-select: none;
         }
@@ -251,11 +249,9 @@
             .hero-banner { padding: 50px 15px 30px; }
             .hero-banner h1 { font-size: 2.2rem; } 
             
-            /* Stack the 3 controls on mobile */
             .controls { flex-direction: column; align-items: stretch; }
             select, input[type="text"] { max-width: 100%; }
             
-            /* Align filters to start so they scroll naturally on small screens */
             .filter-section { text-align: left; }
             .filter-group { justify-content: flex-start; padding-left: 5px; }
             .filter-label { padding-left: 10px; }
@@ -267,15 +263,14 @@
     <div class="ambient-bg"></div>
 
     <header class="hero-banner">
-        <h1>⚽ My DLS Card Collection</h1>
-        <div class="subtitle">Ultimate Team Roster</div>
+        <h1>⚽ DLS CARD ARCHIVE</h1>
+        <div class="subtitle">CURATED BY ARNOB SCARNEEL</div>
     </header>
     
     <div class="content-wrapper">
         
         <!-- === TOP CONTROLS === -->
         <div class="controls">
-            <!-- Updated placeholder text -->
             <input type="text" id="searchInput" placeholder="🔍 Search player or rating...">
             
             <select id="promoSelect">
@@ -291,6 +286,7 @@
                 <option value="ratingDesc">Sort: Rating (High to Low)</option>
                 <option value="ratingAsc">Sort: Rating (Low to High)</option>
                 <option value="nameAsc">Sort: Name (A-Z)</option>
+                <option value="nameDesc">Sort: Name (Z-A)</option> <!-- Z-A Added Here -->
             </select>
         </div>
 
@@ -495,7 +491,6 @@
         function updateGallery() {
             let filteredCards = [...myCards];
             
-            // 1. Search Query (Now checks Name AND Rating)
             const searchQuery = searchInput.value.toLowerCase().trim();
             if (searchQuery !== "") {
                 filteredCards = filteredCards.filter(card => 
@@ -504,7 +499,6 @@
                 );
             }
 
-            // 2. Promo Dropdown Logic
             const currentPromoFilter = promoSelect.value;
             if (currentPromoFilter !== "All") {
                 filteredCards = filteredCards.filter(card => 
@@ -512,21 +506,18 @@
                 );
             }
 
-            // 3. Card Type Logic
             if (currentTypeFilter !== "All") {
                 filteredCards = filteredCards.filter(card => 
                     card.tags.some(tag => tag.toLowerCase().includes(currentTypeFilter.toLowerCase()))
                 );
             }
 
-            // 4. Position Logic
             if (currentPosFilter !== "All") {
                 filteredCards = filteredCards.filter(card => 
                     card.tags.some(tag => tag.toLowerCase() === currentPosFilter.toLowerCase())
                 );
             }
             
-            // 5. Sort Logic
             const sortValue = sortSelect.value;
             if (sortValue === "ratingDesc") {
                 filteredCards.sort((a, b) => b.rating - a.rating);
@@ -534,6 +525,8 @@
                 filteredCards.sort((a, b) => a.rating - b.rating);
             } else if (sortValue === "nameAsc") {
                 filteredCards.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (sortValue === "nameDesc") { 
+                filteredCards.sort((a, b) => b.name.localeCompare(a.name)); // Logic for Z-A added here
             }
             
             const count = filteredCards.length;
@@ -551,7 +544,6 @@
         searchInput.addEventListener('input', updateGallery);
         sortSelect.addEventListener('change', updateGallery);
 
-        // Close Modal
         cardModal.addEventListener('click', (e) => {
             if (e.target === cardModal || e.target.classList.contains('modal-close')) {
                 cardModal.classList.remove('active');
