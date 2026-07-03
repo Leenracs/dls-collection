@@ -8,57 +8,50 @@
     <style>
         :root {
             --gold: #ffd700;
-            --text: #f5f5f5;
+            --bg: #08080c;
+            --panel: #141419;
+            --panel-2: #101014;
+            --text: #ffffff;
             --muted: #9ca3af;
-            --panel: rgba(255, 255, 255, 0.055);
-            --border: rgba(255, 255, 255, 0.11);
+            --border: rgba(255,255,255,0.1);
         }
 
         *{*
             box-sizing: border-box;
         }
 
+        html {
+            background: var(--bg);
+        }
+
         body {
-            min-height: 100vh;
-            margin: 0;
-            padding: 32px 18px 55px;
-            color: var(--text);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
             background:
-                radial-gradient(circle at 15% 0%, rgba(255, 215, 0, 0.13), transparent 30%),
-                radial-gradient(circle at 85% 8%, rgba(80, 120, 255, 0.16), transparent 32%),
-                radial-gradient(circle at 50% 100%, rgba(190, 60, 255, 0.09), transparent 38%),
-                linear-gradient(180deg, #101018 0%, #09090d 55%, #070709 100%);
+                radial-gradient(circle at 20% 0%, rgba(255, 215, 0, 0.12), transparent 28%),
+                radial-gradient(circle at 80% 5%, rgba(80, 120, 255, 0.15), transparent 30%),
+                radial-gradient(circle at 50% 100%, rgba(170, 60, 255, 0.08), transparent 35%),
+                linear-gradient(180deg, #101018 0%, #08080c 60%, #070709 100%);
+            background-color: var(--bg);
+            min-height: 100vh;
+            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            margin: 0;
+            padding: 32px 18px 50px;
             overflow-x: hidden;
         }
 
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            background-image:
-                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-            background-size: 42px 42px;
-            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.65), transparent 75%);
-            z-index: -1;
-        }
-
+        /* === HERO === */
         .hero {
             max-width: 1200px;
-            margin: 0 auto 18px;
-            padding: 38px 22px;
+            margin: 0 auto 18px auto;
+            padding: 34px 20px;
             text-align: center;
-            border-radius: 26px;
+            border-radius: 24px;
             background:
-                linear-gradient(135deg, rgba(255, 215, 0, 0.14), transparent 34%),
-                linear-gradient(225deg, rgba(80, 120, 255, 0.17), transparent 40%),
+                linear-gradient(135deg, rgba(255, 215, 0, 0.13), transparent 35%),
+                linear-gradient(225deg, rgba(80, 120, 255, 0.15), transparent 42%),
                 rgba(255,255,255,0.045);
-            border: 1px solid rgba(255,255,255,0.12);
-            box-shadow: 0 22px 70px rgba(0,0,0,0.38);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.11);
+            box-shadow: 0 18px 55px rgba(0,0,0,0.4);
             position: relative;
             overflow: hidden;
         }
@@ -66,128 +59,94 @@
         .hero::after {
             content: "";
             position: absolute;
-            width: 360px;
-            height: 360px;
+            width: 280px;
+            height: 280px;
             border-radius: 999px;
             background: rgba(255,255,255,0.05);
-            filter: blur(24px);
-            top: -220px;
+            top: -190px;
             left: 50%;
             transform: translateX(-50%);
             pointer-events: none;
         }
 
         .hero-kicker {
+            position: relative;
+            z-index: 1;
             color: var(--gold);
             font-size: 12px;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 2.4px;
+            letter-spacing: 2.2px;
             margin-bottom: 10px;
-            position: relative;
-            z-index: 1;
         }
 
-        .hero h1 {
-            margin: 0;
-            font-size: clamp(34px, 6vw, 64px);
-            line-height: 0.96;
-            font-weight: 950;
-            letter-spacing: -2px;
-            color: #fff;
-            text-shadow: 0 8px 24px rgba(0,0,0,0.45);
+        h1 {
             position: relative;
             z-index: 1;
+            text-align: center;
+            margin: 0;
+            font-size: clamp(34px, 6vw, 62px);
+            line-height: 0.98;
+            font-weight: 950;
+            letter-spacing: -1.8px;
+            color: #ffffff;
+            text-shadow: 0 8px 24px rgba(0,0,0,0.5);
         }
 
         .hero p {
-            margin: 16px auto 0;
-            max-width: 620px;
-            color: #b8bec7;
-            font-size: 15px;
-            line-height: 1.6;
             position: relative;
             z-index: 1;
+            max-width: 620px;
+            margin: 14px auto 0;
+            color: #aeb5c0;
+            font-size: 15px;
+            line-height: 1.55;
         }
 
-        .summary-grid {
-            max-width: 1200px;
-            margin: 0 auto 18px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-        }
-
-        .summary-card {
-            border-radius: 18px;
-            padding: 17px 14px;
-            text-align: center;
-            background: rgba(255,255,255,0.045);
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.22);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-        }
-
-        .summary-card .value {
-            font-size: 25px;
-            font-weight: 950;
-            color: var(--gold);
-            letter-spacing: -0.5px;
-        }
-
-        .summary-card .label {
-            margin-top: 5px;
-            font-size: 11px;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            font-weight: 800;
-        }
-
+        /* === CONTROLS === */
         .controls {
             max-width: 1200px;
-            margin: 0 auto 14px;
-            padding: 14px;
+            margin: 0 auto 15px auto;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             justify-content: center;
             flex-wrap: wrap;
+            padding: 14px;
             border-radius: 18px;
-            background: rgba(255,255,255,0.045);
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 12px 35px rgba(0,0,0,0.26);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.045);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.28);
         }
 
         select,
-        input[type="text"],
-        button {
-            min-height: 42px;
+        input[type="text"] {
             background: rgba(255, 255, 255, 0.06);
             color: #fff;
             border: 1px solid rgba(255, 255, 255, 0.13);
-            padding: 10px 15px;
+            padding: 11px 16px;
             border-radius: 11px;
             font-size: 13px;
             font-weight: 700;
             outline: none;
-            transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            transition: border-color 0.2s, background 0.2s, transform 0.2s;
+        }
+
+        select {
+            cursor: pointer;
         }
 
         input[type="text"] {
-            width: min(340px, 100%);
+            width: min(330px, 100%);
         }
 
         input[type="text"]::placeholder {
             color: #858b96;
         }
 
-        select {
-            cursor: pointer;
+        select:hover,
+        input[type="text"]:focus {
+            border-color: rgba(255, 255, 255, 0.34);
+            background: rgba(255, 255, 255, 0.095);
         }
 
         select option {
@@ -195,31 +154,12 @@
             color: #fff;
         }
 
-        select:hover,
-        input[type="text"]:focus,
-        button:hover {
-            border-color: rgba(255, 255, 255, 0.34);
-            background: rgba(255, 255, 255, 0.095);
-        }
-
-        button {
-            cursor: pointer;
-            color: var(--gold);
-            border-color: rgba(255,215,0,0.28);
-            background: rgba(255,215,0,0.1);
-        }
-
-        button:hover {
-            transform: translateY(-1px);
-            background: rgba(255,215,0,0.16);
-        }
-
+        /* === LIVE STATS COUNTER === */
         .stats-counter {
-            max-width: 1200px;
-            margin: 0 auto 26px;
             text-align: center;
             font-size: 13px;
             color: #a0a5ab;
+            margin-bottom: 28px;
             font-weight: 700;
             letter-spacing: 0.3px;
         }
@@ -229,29 +169,30 @@
             font-weight: 950;
         }
 
+        /* === GALLERY === */
         .gallery {
-            max-width: 1200px;
-            margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 280px));
+            grid-template-columns: repeat(auto-fill, minmax(245px, 280px));
             justify-content: center;
             gap: 22px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
+        /* === CARD CONTAINER === */
         .card-container {
             position: relative;
+            background:
+                linear-gradient(145deg, rgba(255,255,255,0.065), rgba(255,255,255,0.022)),
+                linear-gradient(145deg, #18181d, #101014);
+            border: 1px solid rgba(255, 255, 255, 0.075);
+            border-radius: 18px;
             padding: 14px;
             display: flex;
             flex-direction: column;
-            border-radius: 18px;
-            background:
-                linear-gradient(145deg, rgba(255,255,255,0.07), rgba(255,255,255,0.025)),
-                linear-gradient(145deg, #18181d, #101014);
-            border: 1px solid rgba(255,255,255,0.075);
-            box-shadow: 0 14px 35px rgba(0,0,0,0.42);
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
             transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
-            animation: cardIn 0.38s ease both;
-            overflow: visible;
+            animation: cardIn 0.35s ease both;
         }
 
         .card-container::before {
@@ -261,39 +202,18 @@
             border-radius: inherit;
             pointer-events: none;
             background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.08), transparent 45%);
-            opacity: 0.9;
         }
 
         .card-container:hover {
             transform: translateY(-3px);
-            border-color: rgba(255,255,255,0.18);
-            box-shadow: 0 20px 45px rgba(0,0,0,0.56);
-        }
-
-        .card-container.rarity-special {
-            border-color: rgba(240, 206, 84, 0.24);
-            box-shadow: 0 14px 35px rgba(240, 206, 84, 0.08), 0 14px 35px rgba(0,0,0,0.42);
-        }
-
-        .card-container.rarity-champion {
-            border-color: rgba(90, 135, 255, 0.3);
-            box-shadow: 0 14px 35px rgba(70, 120, 255, 0.1), 0 14px 35px rgba(0,0,0,0.42);
-        }
-
-        .card-container.rarity-dream {
-            border-color: rgba(224, 132, 255, 0.3);
-            box-shadow: 0 14px 35px rgba(190, 80, 255, 0.11), 0 14px 35px rgba(0,0,0,0.42);
-        }
-
-        .card-container.rarity-toty {
-            border-color: rgba(69, 240, 155, 0.28);
-            box-shadow: 0 14px 35px rgba(69, 240, 155, 0.09), 0 14px 35px rgba(0,0,0,0.42);
+            border-color: rgba(255, 255, 255, 0.17);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.62);
         }
 
         @keyframes cardIn {
             from {
                 opacity: 0;
-                transform: translateY(14px) scale(0.985);
+                transform: translateY(12px) scale(0.985);
             }
             to {
                 opacity: 1;
@@ -301,19 +221,41 @@
             }
         }
 
+        /* Rarity glow */
+        .card-container.rarity-special {
+            border-color: rgba(240, 206, 84, 0.25);
+            box-shadow: 0 14px 34px rgba(240, 206, 84, 0.08), 0 14px 34px rgba(0,0,0,0.45);
+        }
+
+        .card-container.rarity-champion {
+            border-color: rgba(90, 135, 255, 0.32);
+            box-shadow: 0 14px 34px rgba(70, 120, 255, 0.11), 0 14px 34px rgba(0,0,0,0.45);
+        }
+
+        .card-container.rarity-dream {
+            border-color: rgba(224, 132, 255, 0.32);
+            box-shadow: 0 14px 34px rgba(190, 80, 255, 0.12), 0 14px 34px rgba(0,0,0,0.45);
+        }
+
+        .card-container.rarity-toty {
+            border-color: rgba(69, 240, 155, 0.3);
+            box-shadow: 0 14px 34px rgba(69, 240, 155, 0.1), 0 14px 34px rgba(0,0,0,0.45);
+        }
+
+        /* === CARD IMAGE === */
         .card-image-wrapper {
             position: relative;
             width: 100%;
+            border-radius: 14px;
             margin-bottom: 13px;
             padding: 10px;
-            border-radius: 14px;
-            cursor: zoom-in;
-            z-index: 1;
             transform-style: preserve-3d;
             will-change: transform;
+            cursor: zoom-in;
+            z-index: 1;
             background:
-                radial-gradient(circle at 50% 12%, rgba(255,255,255,0.16), transparent 35%),
-                linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.018));
+                radial-gradient(circle at 50% 12%, rgba(255,255,255,0.15), transparent 36%),
+                linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02));
             border: 1px solid rgba(255,255,255,0.07);
         }
 
@@ -330,13 +272,13 @@
 
         .card-image {
             width: 100%;
-            display: block;
             border-radius: 10px;
+            display: block;
             pointer-events: none;
             position: relative;
             z-index: 1;
-            box-shadow: 0 9px 20px rgba(0,0,0,0.42);
             background: #111;
+            box-shadow: 0 9px 20px rgba(0,0,0,0.42);
         }
 
         .card-header {
@@ -344,35 +286,37 @@
             justify-content: space-between;
             align-items: flex-start;
             gap: 10px;
-            margin: 2px 0 12px;
+            margin-top: 2px;
+            margin-bottom: 12px;
             padding: 0 4px;
             position: relative;
             z-index: 1;
         }
 
         .card-title {
-            margin: 0;
-            color: #fff;
             font-size: 15px;
-            line-height: 1.25;
             font-weight: 900;
+            line-height: 1.25;
             letter-spacing: 0.35px;
+            color: #ffffff;
+            margin: 0;
             word-break: break-word;
         }
 
         .card-rating {
-            flex-shrink: 0;
             white-space: nowrap;
-            padding: 4px 8px;
-            border-radius: 8px;
+            flex-shrink: 0;
             background: rgba(255, 215, 0, 0.13);
             color: var(--gold);
             border: 1px solid rgba(255, 215, 0, 0.36);
-            font-size: 12px;
             font-weight: 950;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 12px;
             letter-spacing: 0.4px;
         }
 
+        /* === TAGS === */
         .tags {
             display: flex;
             flex-wrap: wrap;
@@ -403,22 +347,26 @@
         [class*="tag-Classic"] { background: rgba(255, 255, 255, 0.08); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.25); }*
         [class*="tag-Dream-Star"] { background: rgba(147, 34, 201, 0.22); color: #e084ff; border: 1px solid rgba(147, 34, 201, 0.5); }*
         [class*="tag-Kick-Off"] { background: rgba(201, 22, 82, 0.22); color: #ff75a4; border: 1px solid rgba(201, 22, 82, 0.5); }*
-        [class*="tag-Toty"], [class*="tag-TOTY"] { background: rgba(0, 143, 68, 0.22); color: #45f09b; border: 1px solid rgba(0, 143, 68, 0.5); }
+        [class*="tag-Toty"] { background: rgba(0, 143, 68, 0.22); color: #45f09b; border: 1px solid rgba(0, 143, 68, 0.5); }*
 
+        /*=== MODAL ===*/
         .modal-overlay {
             position: fixed;
-            inset: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.86);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             z-index: 1000;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 22px;
-            background: rgba(0, 0, 0, 0.84);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.25s ease;
+            padding: 20px;
         }
 
         .modal-overlay.active {
@@ -429,11 +377,11 @@
         .modal-content {
             position: relative;
             max-width: 410px;
-            width: min(410px, 100%);
+            width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            transform: scale(0.88) translateY(10px);
+            transform: scale(0.88) translateY(8px);
             transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
@@ -455,29 +403,20 @@
             border-radius: 999px;
             background: rgba(255,255,255,0.07);
             border: 1px solid rgba(255,255,255,0.12);
-            color: #fff;
-            text-align: center;
             font-size: 16px;
             font-weight: 950;
+            color: #ffffff;
+            text-align: center;
             letter-spacing: 0.4px;
-        }
-
-        .modal-caption span {
-            color: var(--gold);
-            margin-left: 8px;
         }
 
         .modal-close {
             position: absolute;
             top: -48px;
             right: 0;
-            width: 40px;
-            height: 40px;
-            display: grid;
-            place-items: center;
-            color: #fff;
-            font-size: 32px;
-            font-weight: 800;
+            color: #ffffff;
+            font-size: 34px;
+            font-weight: bold;
             cursor: pointer;
             transition: color 0.2s, transform 0.2s;
             user-select: none;
@@ -488,76 +427,9 @@
             transform: scale(1.08);
         }
 
-        .skeleton {
-            background: linear-gradient(
-                90deg,
-                rgba(255,255,255,0.045),
-                rgba(255,255,255,0.12),
-                rgba(255,255,255,0.045)
-            );
-            background-size: 220% 100%;
-            animation: shimmer 1.35s infinite linear;
-            border-radius: 12px;
-        }
-
-        .skeleton-image {
-            height: 330px;
-            margin-bottom: 14px;
-        }
-
-        .skeleton-line {
-            height: 15px;
-            margin: 8px 4px;
-        }
-
-        .skeleton-line.wide {
-            width: 72%;
-        }
-
-        .skeleton-line.small {
-            width: 44%;
-        }
-
-        @keyframes shimmer {
-            0% { background-position: 220% 0; }
-            100% { background-position: -220% 0; }
-        }
-
-        .empty-state {
-            grid-column: 1 / -1;
-            padding: 34px 20px;
-            text-align: center;
-            color: #aab0ba;
-            border: 1px dashed rgba(255,255,255,0.16);
-            background: rgba(255,255,255,0.035);
-            border-radius: 18px;
-        }
-
-        .empty-state strong {
-            color: #fff;
-        }
-
-        .error-banner {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 999999;
-            padding: 14px;
-            background: #ffdddd;
-            color: #8b0000;
-            font-family: monospace;
-            font-size: 13px;
-            white-space: pre-wrap;
-        }
-
-        @media (max-width: 800px) {
+        @media (max-width: 760px) {
             body {
                 padding: 22px 13px 40px;
-            }
-
-            .summary-grid {
-                grid-template-columns: repeat(2, 1fr);
             }
 
             .controls {
@@ -565,35 +437,20 @@
             }
 
             select,
-            input[type="text"],
-            button {
+            input[type="text"] {
                 width: 100%;
             }
 
             .gallery {
                 grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-            }
-        }
-
-        @media (max-width: 480px) {
-            .summary-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 9px;
-            }
-
-            .summary-card {
-                padding: 14px 8px;
-            }
-
-            .summary-card .value {
-                font-size: 21px;
+                gap: 16px;
             }
 
             .hero {
                 padding: 30px 16px;
             }
 
-            .hero h1 {
+            h1 {
                 letter-spacing: -1.2px;
             }
         }
@@ -601,39 +458,20 @@
 </head>
 
 <body>
+
     <header class="hero">
         <div class="hero-kicker">Dream League Soccer</div>
         <h1>My DLS Card Collection</h1>
-        <p>Browse, filter and showcase your custom DLS cards with ratings, positions, rarity badges and full-screen previews.</p>
+        <p>Browse, filter and showcase your custom DLS cards with ratings, rarity badges and full-screen previews.</p>
     </header>
-
-    <section class="summary-grid" id="summaryGrid">
-        <div class="summary-card">
-            <div class="value">—</div>
-            <div class="label">Total Cards</div>
-        </div>
-        <div class="summary-card">
-            <div class="value">—</div>
-            <div class="label">Average</div>
-        </div>
-        <div class="summary-card">
-            <div class="value">—</div>
-            <div class="label">Best Rating</div>
-        </div>
-        <div class="summary-card">
-            <div class="value">—</div>
-            <div class="label">Specials</div>
-        </div>
-    </section>
 
     <div class="controls">
         <input type="text" id="searchInput" placeholder="🔍 Search player...">
 
         <select id="sortSelect">
-            <option value="ratingDesc">Sort by Rating: High to Low</option>
-            <option value="ratingAsc">Sort by Rating: Low to High</option>
-            <option value="nameAsc">Sort by Name: A-Z</option>
-            <option value="nameDesc">Sort by Name: Z-A</option>
+            <option value="ratingDesc">Sort by Rating (High to Low)</option>
+            <option value="ratingAsc">Sort by Rating (Low to High)</option>
+            <option value="nameAsc">Sort by Name (A-Z)</option>
         </select>
 
         <select id="filterSelect">
@@ -648,398 +486,236 @@
             <option value="Classic">Classic</option>
             <option value="Dream Star">Dream Star</option>
             <option value="Kick-Off Star">Kick-Off Star</option>
-            <option value="Toty">TOTY</option>
-            <option value="TOTY">TOTY Uppercase</option>
+            <option value="Toty 2025">TOTY 2025</option>
         </select>
-
-        <button id="resetButton" type="button">Reset</button>
     </div>
 
     <div class="stats-counter" id="statsCounter">Loading stats...</div>
 
-    <main class="gallery" id="gallery"></main>
+    <div class="gallery" id="gallery"></div>
 
     <div class="modal-overlay" id="cardModal">
         <div class="modal-content">
-            <span class="modal-close" id="modalClose">×</span>
+            <span class="modal-close">×</span>
             <img src="" alt="" class="modal-image" id="modalImage">
             <div class="modal-caption" id="modalCaption"></div>
         </div>
     </div>
 
     <script>
-var sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzy7w0GcQzjNqNFsRennLi5WorAoS6XHZPiRJF4n-3amHhA7A9czTggF9gc7TUGXIsxdPFICRikf7s/pub?gid=266421028&single=true&output=csv";
+        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzy7w0GcQzjNqNFsRennLi5WorAoS6XHZPiRJF4n-3amHhA7A9czTggF9gc7TUGXIsxdPFICRikf7s/pub?gid=266421028&single=true&output=csv";
 
-var myCards = [];
+        let myCards = [];
 
-var gallery = document.getElementById("gallery");
-var searchInput = document.getElementById("searchInput");
-var sortSelect = document.getElementById("sortSelect");
-var filterSelect = document.getElementById("filterSelect");
-var statsCounter = document.getElementById("statsCounter");
-var summaryGrid = document.getElementById("summaryGrid");
-var resetButton = document.getElementById("resetButton");
+        const gallery = document.getElementById('gallery');
+        const searchInput = document.getElementById('searchInput');
+        const sortSelect = document.getElementById('sortSelect');
+        const filterSelect = document.getElementById('filterSelect');
+        const statsCounter = document.getElementById('statsCounter');
 
-var cardModal = document.getElementById("cardModal");
-var modalImage = document.getElementById("modalImage");
-var modalCaption = document.getElementById("modalCaption");
-var modalClose = document.getElementById("modalClose");
+        const cardModal = document.getElementById('cardModal');
+        const modalImage = document.getElementById('modalImage');
+        const modalCaption = document.getElementById('modalCaption');
 
-statsCounter.innerHTML = "JS started. Loading CSV...";
+        const isDesktop = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
-function getImageSrc(imageName) {
-    imageName = String(imageName || "").trim();
+        async function loadData() {
+            try {
+                const response = await fetch(sheetURL);
+                const csvText = await response.text();
 
-    if (imageName === "") {
-        return "https://via.placeholder.com/300x420/191919/ffffff?text=Image+Missing";
-    }
+                const rows = csvText.split(/\r?\n/).slice(1);
 
-    if (imageName.indexOf("http://") === 0 || imageName.indexOf("https://") === 0) {
-        return imageName;
-    }
+                myCards = rows.filter(row => row.trim() !== '').map(row => {
+                    const cols = row.split(',');
 
-    if (
-        imageName.toLowerCase().endsWith(".webp") ||
-        imageName.toLowerCase().endsWith(".png") ||
-        imageName.toLowerCase().endsWith(".jpg") ||
-        imageName.toLowerCase().endsWith(".jpeg")
-    ) {
-        return "images/" + imageName;
-    }
+                    const name = cols[0] ? cols[0].trim() : "Unknown";
+                    const rating = cols[1] ? parseInt(cols[1].trim()) : 0;
 
-    return "images/" + imageName + ".webp";
-}
+                    const tags = [cols[2], cols[3], cols[4]]
+                        .map(tag => tag ? tag.trim() : '')
+                        .filter(tag => tag !== '');
 
-function makeTagClass(tag) {
-    return String(tag || "")
-        .trim()
-        .replace(/[^a-zA-Z0-9 ]/g, "")
-        .replace(/\s+/g, "-");
-}
+                    const image = cols[5] ? cols[5].trim() : '';
 
-function loadData() {
-    fetch(sheetURL)
-        .then(function(response) {
-            return response.text();
-        })
-        .then(function(csvText) {
-            var lines = csvText.trim().split(/\r?\n/);
-
-            myCards = [];
-
-            for (var i = 1; i < lines.length; i++) {
-                var cols = lines[i].split(",");
-
-                var name = cols[0] ? cols[0].trim() : "";
-                var rating = cols[1] ? parseInt(cols[1].trim(), 10) : 0;
-                var position = cols[2] ? cols[2].trim() : "";
-                var rarity = cols[3] ? cols[3].trim() : "";
-                var edition = cols[4] ? cols[4].trim() : "";
-                var image = cols[5] ? cols[5].trim() : "";
-
-                if (name === "") {
-                    continue;
-                }
-
-                var tags = [];
-
-                if (position !== "") {
-                    tags.push(position);
-                }
-
-                if (rarity !== "") {
-                    tags.push(rarity);
-                }
-
-                if (edition !== "") {
-                    tags.push(edition);
-                }
-
-                myCards.push({
-                    name: name,
-                    rating: rating,
-                    tags: tags,
-                    image: image
+                    return { name, rating, tags, image };
                 });
+
+                updateGallery();
+
+            } catch (error) {
+                console.error("Error loading data:", error);
+                gallery.innerHTML = "<p style='color:white; text-align:center;'>Failed to load players.</p>";
+                statsCounter.innerHTML = "Failed to load cards.";
+            }
+        }
+
+        function renderCards(cardsArray) {
+            gallery.innerHTML = '';
+
+            if (cardsArray.length === 0) {
+                gallery.innerHTML = "<p style='color:#888; text-align:center; width:100%; grid-column: 1/-1;'>No players found matching your search.</p>";
+                return;
             }
 
-            updateSummary();
-            updateGallery();
-        })
-        .catch(function(error) {
-            statsCounter.innerHTML = "Failed to load CSV: " + error.message;
-        });
-}
+            cardsArray.forEach((card, index) => {
+                let tagsHTML = '';
 
-function updateSummary() {
-    var total = myCards.length;
-    var totalRating = 0;
-    var bestRating = 0;
-    var specials = 0;
+                card.tags.forEach(tag => {
+                    const tagClass = tag.replace(/\s+/g, '-');
+                    tagsHTML += `<span class="tag tag-${tagClass}">${tag}</span>`;
+                });
 
-    for (var i = 0; i < myCards.length; i++) {
-        totalRating += myCards[i].rating;
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card-container';
+                cardElement.style.animationDelay = `${Math.min(index *30, 300)}ms`;*
 
-        if (myCards[i].rating > bestRating) {
-            bestRating = myCards[i].rating;
-        }
+                const joinedTags = card.tags.join(' ').toLowerCase();
 
-        if (myCards[i].tags.indexOf("Special") !== -1) {
-            specials++;
-        }
-    }
-
-    var avg = total > 0 ? (totalRating / total).toFixed(1) : "0.0";
-
-    if (summaryGrid) {
-        summaryGrid.innerHTML =
-            '<div class="summary-card">' +
-                '<div class="value">' + total + '</div>' +
-                '<div class="label">Total Cards</div>' +
-            '</div>' +
-            '<div class="summary-card">' +
-                '<div class="value">★ ' + avg + '</div>' +
-                '<div class="label">Average</div>' +
-            '</div>' +
-            '<div class="summary-card">' +
-                '<div class="value">★ ' + bestRating + '</div>' +
-                '<div class="label">Best Rating</div>' +
-            '</div>' +
-            '<div class="summary-card">' +
-                '<div class="value">' + specials + '</div>' +
-                '<div class="label">Specials</div>' +
-            '</div>';
-    }
-}
-
-function updateGallery() {
-    var cards = myCards.slice();
-
-    var search = "";
-    var filter = "All";
-    var sort = "ratingDesc";
-
-    if (searchInput) {
-        search = searchInput.value.toLowerCase().trim();
-    }
-
-    if (filterSelect) {
-        filter = filterSelect.value;
-    }
-
-    if (sortSelect) {
-        sort = sortSelect.value;
-    }
-
-    if (search !== "") {
-        cards = cards.filter(function(card) {
-            var inName = card.name.toLowerCase().indexOf(search) !== -1;
-            var inTags = false;
-
-            for (var i = 0; i < card.tags.length; i++) {
-                if (card.tags[i].toLowerCase().indexOf(search) !== -1) {
-                    inTags = true;
+                if (joinedTags.includes('special')) {
+                    cardElement.classList.add('rarity-special');
                 }
-            }
 
-            return inName || inTags;
-        });
-    }
-
-    if (filter !== "All") {
-        cards = cards.filter(function(card) {
-            for (var i = 0; i < card.tags.length; i++) {
-                var tag = card.tags[i].toLowerCase();
-                var wanted = filter.toLowerCase();
-
-                if (tag === wanted || tag.indexOf(wanted) !== -1) {
-                    return true;
+                if (joinedTags.includes('champion')) {
+                    cardElement.classList.add('rarity-champion');
                 }
+
+                if (joinedTags.includes('dream')) {
+                    cardElement.classList.add('rarity-dream');
+                }
+
+                if (joinedTags.includes('toty')) {
+                    cardElement.classList.add('rarity-toty');
+                }
+
+                cardElement.innerHTML = `
+                    <div class="card-image-wrapper">
+                        <div class="holo-glare"></div>
+                        <img src="images/${card.image}.webp" alt="${card.name}" class="card-image" decoding="async" onerror="this.src='https://via.placeholder.com/300x420/191919/ffffff?text=Image+Missing'">
+                    </div>
+                    <div class="card-header">
+                        <div class="card-title">${card.name}</div>
+                        <div class="card-rating">★ ${card.rating}</div>
+                    </div>
+                    <div class="tags">${tagsHTML}</div>
+                `;
+
+                const imageWrapper = cardElement.querySelector('.card-image-wrapper');
+                const holoGlare = imageWrapper.querySelector('.holo-glare');
+
+                imageWrapper.addEventListener('click', () => {
+                    modalImage.src = `images/${card.image}.webp`;
+                    modalCaption.innerHTML = `${card.name} <span style="color:#ffd700; margin-left:8px;">★ ${card.rating}</span>`;
+                    cardModal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+
+                if (isDesktop) {
+                    imageWrapper.addEventListener('mouseenter', () => {
+                        imageWrapper.style.transition = 'transform 0.08s ease-out';
+                        imageWrapper.style.zIndex = '10';
+
+                        if (holoGlare) {
+                            holoGlare.style.opacity = '1';
+                        }
+                    });
+
+                    imageWrapper.addEventListener('mousemove', (e) => {
+                        const rect = imageWrapper.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+
+                        const rotateX = ((y - rect.height / 2) / (rect.height / 2))* -14;*
+                        const rotateY = ((x - rect.width / 2) / (rect.width / 2)) *14;*
+
+                        imageWrapper.style.transform = `perspective(850px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(1.075) translateY(-4px)`;
+                        imageWrapper.style.boxShadow = '0 25px 50px rgba(0, 0, 0, 0.82)';
+
+                        if (holoGlare) {
+                            const percentX = (x / rect.width)* 100;*
+                            const percentY = (y / rect.height) * 100;*
+
+                            holoGlare.style.background = `radial-gradient(circle at ${percentX}% ${percentY}%, rgba(255, 255, 255, 0.42) 0%, rgba(255, 215, 0, 0.2) 24%, rgba(255, 105, 180, 0.14) 43%, rgba(0, 212, 255, 0.1) 62%, transparent 80%)`;
+                        }
+                    });
+
+                    imageWrapper.addEventListener('mouseleave', () => {
+                        imageWrapper.style.transition = 'all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                        imageWrapper.style.transform = 'perspective(850px) rotateX(0deg) rotateY(0deg) scale(1) translateY(0px)';
+                        imageWrapper.style.boxShadow = 'none';
+                        imageWrapper.style.zIndex = '1';
+
+                        if (holoGlare) {
+                            holoGlare.style.opacity = '0';
+                        }
+                    });
+                }
+
+                gallery.appendChild(cardElement);
+            });
+        }
+
+        cardModal.addEventListener('click', (e) => {
+            if (e.target === cardModal || e.target.classList.contains('modal-close')) {
+                cardModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                cardModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        function updateGallery() {
+            let filteredCards = [...myCards];
+
+            const searchQuery = searchInput.value.toLowerCase().trim();
+
+            if (searchQuery !== "") {
+                filteredCards = filteredCards.filter(card =>
+                    card.name.toLowerCase().includes(searchQuery) ||
+                    card.tags.some(tag => tag.toLowerCase().includes(searchQuery))
+                );
             }
 
-            return false;
-        });
-    }
+            const filterValue = filterSelect.value;
 
-    if (sort === "ratingDesc") {
-        cards.sort(function(a, b) {
-            return b.rating - a.rating;
-        });
-    }
+            if (filterValue !== "All") {
+                filteredCards = filteredCards.filter(card => card.tags.includes(filterValue));
+            }
 
-    if (sort === "ratingAsc") {
-        cards.sort(function(a, b) {
-            return a.rating - b.rating;
-        });
-    }
+            const sortValue = sortSelect.value;
 
-    if (sort === "nameAsc") {
-        cards.sort(function(a, b) {
-            return a.name.localeCompare(b.name);
-        });
-    }
+            if (sortValue === "ratingDesc") {
+                filteredCards.sort((a, b) => b.rating - a.rating);
+            } else if (sortValue === "ratingAsc") {
+                filteredCards.sort((a, b) => a.rating - b.rating);
+            } else if (sortValue === "nameAsc") {
+                filteredCards.sort((a, b) => a.name.localeCompare(b.name));
+            }
 
-    if (sort === "nameDesc") {
-        cards.sort(function(a, b) {
-            return b.name.localeCompare(a.name);
-        });
-    }
+            const count = filteredCards.length;
 
-    var count = cards.length;
-    var totalRating = 0;
+            if (count > 0) {
+                const totalRating = filteredCards.reduce((sum, card) => sum + card.rating, 0);
+                const avg = (totalRating / count).toFixed(1);
 
-    for (var r = 0; r < cards.length; r++) {
-        totalRating += cards[r].rating;
-    }
+                statsCounter.innerHTML = `Showing <span>${count}</span> Card${count !== 1 ? 's' : ''} | Avg Rating: <span>★ ${avg}</span>`;
+            } else {
+                statsCounter.innerHTML = `Showing <span>0</span> Cards`;
+            }
 
-    var avg = count > 0 ? (totalRating / count).toFixed(1) : "0.0";
-
-    statsCounter.innerHTML =
-        'Showing <span>' + count + '</span> Card' +
-        (count === 1 ? "" : "s") +
-        ' | Avg Rating: <span>★ ' + avg + '</span>';
-
-    renderCards(cards);
-}
-
-function renderCards(cards) {
-    gallery.innerHTML = "";
-
-    if (cards.length === 0) {
-        gallery.innerHTML =
-            '<div class="empty-state">' +
-                '<strong>No players found.</strong><br>' +
-                'Try changing your search or filters.' +
-            '</div>';
-        return;
-    }
-
-    for (var i = 0; i < cards.length; i++) {
-        var card = cards[i];
-
-        var cardElement = document.createElement("article");
-        cardElement.className = "card-container";
-
-        var joinedTags = card.tags.join(" ").toLowerCase();
-
-        if (joinedTags.indexOf("special") !== -1) {
-            cardElement.classList.add("rarity-special");
+            renderCards(filteredCards);
         }
 
-        if (joinedTags.indexOf("champion") !== -1) {
-            cardElement.classList.add("rarity-champion");
-        }
+        searchInput.addEventListener('input', updateGallery);
+        sortSelect.addEventListener('change', updateGallery);
+        filterSelect.addEventListener('change', updateGallery);
 
-        if (joinedTags.indexOf("dream") !== -1) {
-            cardElement.classList.add("rarity-dream");
-        }
-
-        if (joinedTags.indexOf("toty") !== -1) {
-            cardElement.classList.add("rarity-toty");
-        }
-
-        var wrapper = document.createElement("div");
-        wrapper.className = "card-image-wrapper";
-
-        var glare = document.createElement("div");
-        glare.className = "holo-glare";
-
-        var img = document.createElement("img");
-        img.className = "card-image";
-        img.src = getImageSrc(card.image);
-        img.alt = card.name;
-
-        img.onerror = function() {
-            this.src = "https://via.placeholder.com/300x420/191919/ffffff?text=Image+Missing";
-        };
-
-        wrapper.appendChild(glare);
-        wrapper.appendChild(img);
-
-        var header = document.createElement("div");
-        header.className = "card-header";
-
-        var title = document.createElement("div");
-        title.className = "card-title";
-        title.textContent = card.name;
-
-        var rating = document.createElement("div");
-        rating.className = "card-rating";
-        rating.textContent = "★ " + card.rating;
-
-        header.appendChild(title);
-        header.appendChild(rating);
-
-        var tagsDiv = document.createElement("div");
-        tagsDiv.className = "tags";
-
-        for (var t = 0; t < card.tags.length; t++) {
-            var tag = document.createElement("span");
-            tag.className = "tag tag-" + makeTagClass(card.tags[t]);
-            tag.textContent = card.tags[t];
-            tagsDiv.appendChild(tag);
-        }
-
-        cardElement.appendChild(wrapper);
-        cardElement.appendChild(header);
-        cardElement.appendChild(tagsDiv);
-
-        attachModalClick(wrapper, card);
-
-        gallery.appendChild(cardElement);
-    }
-}
-
-function attachModalClick(wrapper, card) {
-    wrapper.addEventListener("click", function() {
-        if (!cardModal) {
-            return;
-        }
-
-        modalImage.src = getImageSrc(card.image);
-        modalImage.alt = card.name;
-        modalCaption.innerHTML = card.name + ' <span>★ ' + card.rating + '</span>';
-        cardModal.classList.add("active");
-    });
-}
-
-if (searchInput) {
-    searchInput.addEventListener("input", updateGallery);
-}
-
-if (sortSelect) {
-    sortSelect.addEventListener("change", updateGallery);
-}
-
-if (filterSelect) {
-    filterSelect.addEventListener("change", updateGallery);
-}
-
-if (resetButton) {
-    resetButton.addEventListener("click", function() {
-        searchInput.value = "";
-        sortSelect.value = "ratingDesc";
-        filterSelect.value = "All";
-        updateGallery();
-    });
-}
-
-if (cardModal) {
-    cardModal.addEventListener("click", function(event) {
-        if (event.target === cardModal) {
-            cardModal.classList.remove("active");
-        }
-    });
-}
-
-if (modalClose) {
-    modalClose.addEventListener("click", function() {
-        cardModal.classList.remove("active");
-    });
-}
-
-loadData();
-</script>
-
+        loadData();
+    </script>
 </body>
 </html>
