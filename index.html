@@ -95,7 +95,7 @@
         select, input[type="text"] { 
             flex: 1;
             min-width: 200px;
-            max-width: 280px; /* Keeps them from getting absurdly wide on big monitors */
+            max-width: 280px; 
             background: rgba(255, 255, 255, 0.05); 
             color: #fff; 
             border: 1px solid rgba(255, 255, 255, 0.12); 
@@ -122,7 +122,7 @@
         .filter-section {
             margin-bottom: 25px;
             max-width: 100%;
-            text-align: center; /* Center everything on PC */
+            text-align: center; 
         }
         .filter-label {
             font-family: 'Rajdhani', sans-serif;
@@ -136,13 +136,14 @@
         .filter-group {
             display: flex;
             gap: 12px;
-            justify-content: center; /* Centered on desktop */
+            justify-content: center; 
             overflow-x: auto;
             padding-bottom: 8px;
             scrollbar-width: none; 
             -ms-overflow-style: none; 
         }
         .filter-group::-webkit-scrollbar { display: none; }
+        
         .filter-pill {
             flex-shrink: 0; 
             background: rgba(255, 255, 255, 0.03);
@@ -156,6 +157,10 @@
             transition: all 0.2s ease;
             text-transform: uppercase;
             letter-spacing: 1px;
+            
+            /* Mobile touch fixes */
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
         .filter-pill:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
         .filter-pill.active {
@@ -270,9 +275,9 @@
         
         <!-- === TOP CONTROLS === -->
         <div class="controls">
-            <input type="text" id="searchInput" placeholder="🔍 Search player...">
+            <!-- Updated placeholder text -->
+            <input type="text" id="searchInput" placeholder="🔍 Search player or rating...">
             
-            <!-- THE NEW FUTURE-PROOF PROMO DROPDOWN -->
             <select id="promoSelect">
                 <option value="All">🏆 All Promos</option>
                 <option value="Classic">Classic</option>
@@ -280,7 +285,6 @@
                 <option value="Dream Star">Dream Star</option>
                 <option value="Toty">TOTY</option>
                 <option value="Kick-Off">Kick-Off</option>
-                <!-- To add a new promo next year, just paste a new <option> line right here! -->
             </select>
 
             <select id="sortSelect">
@@ -457,9 +461,7 @@
             });
         }
 
-        // UX: When Promo dropdown is used
         promoSelect.addEventListener('change', () => {
-            // Auto-switch Card Type to "SPECIAL" if they pick a specific promo
             if (promoSelect.value !== "All") {
                 typePills.forEach(p => p.classList.remove('active'));
                 document.querySelector('#typeFilters .filter-pill[data-filter="Special"]').classList.add('active');
@@ -468,14 +470,12 @@
             updateGallery();
         });
 
-        // Setup Type Filter Clicks
         typePills.forEach(pill => {
             pill.addEventListener('click', () => {
                 typePills.forEach(p => p.classList.remove('active'));
                 pill.classList.add('active');
                 currentTypeFilter = pill.getAttribute('data-filter');
 
-                // UX: Reset Promo Dropdown if they click "STANDARD" or "ALL"
                 if (currentTypeFilter === "Legendary" || currentTypeFilter === "All") {
                     promoSelect.value = "All";
                 }
@@ -483,7 +483,6 @@
             });
         });
 
-        // Setup Position Filter Clicks
         posPills.forEach(pill => {
             pill.addEventListener('click', () => {
                 posPills.forEach(p => p.classList.remove('active'));
@@ -496,10 +495,13 @@
         function updateGallery() {
             let filteredCards = [...myCards];
             
-            // 1. Search Query
+            // 1. Search Query (Now checks Name AND Rating)
             const searchQuery = searchInput.value.toLowerCase().trim();
             if (searchQuery !== "") {
-                filteredCards = filteredCards.filter(card => card.name.toLowerCase().includes(searchQuery));
+                filteredCards = filteredCards.filter(card => 
+                    card.name.toLowerCase().includes(searchQuery) || 
+                    card.rating.toString().includes(searchQuery)
+                );
             }
 
             // 2. Promo Dropdown Logic
