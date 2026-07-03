@@ -9,13 +9,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* === ATMOSPHERIC BASE STYLING === */
+        /* === BASE STYLING (FIXED FOR MOBILE SCROLL GAP) === */
+        html {
+            background-color: #07070a; /* Prevents white/gap during mobile rubber-band scrolling */
+        }
         body { 
-            background-color: #07070a;
-            background-image: 
-                radial-gradient(circle at 0% 0%, rgba(30, 70, 150, 0.35) 0%, transparent 40%),
-                radial-gradient(circle at 100% 100%, rgba(150, 30, 90, 0.35) 0%, transparent 40%);
-            background-attachment: fixed;
+            background-color: transparent;
             min-height: 100vh;
             color: #e0e0e0; 
             font-family: 'Montserrat', sans-serif; 
@@ -23,26 +22,36 @@
             padding: 0; 
         }
 
+        /* MOBILE-SAFE FIXED AMBIENT GLOW */
+        .ambient-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(30, 70, 150, 0.35) 0%, transparent 40%),
+                radial-gradient(circle at 100% 100%, rgba(150, 30, 90, 0.35) 0%, transparent 40%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
         /* === HERO BANNER === */
         .hero-banner {
             position: relative;
-            /* 
-               If the stadium image fails to load again, it's being blocked by your browser. 
-               Simply download a stadium image, put it in your images folder, and change the url below to:
-               url('images/stadium.jpg')
-            */
-            background: linear-gradient(to bottom, rgba(10, 10, 12, 0.5), #07070a), 
+            /* Gradient now hits solid #07070a at 90% to prevent bottom-edge image bleed */
+            background: linear-gradient(to bottom, rgba(10, 10, 12, 0.5) 0%, #07070a 90%, #07070a 100%), 
                         url('https://images.pexels.com/photos/1884574/pexels-photo-1884574.jpeg?auto=compress&cs=tinysrgb&w=2000') center/cover;
             padding: 70px 20px 40px;
             text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
             overflow: hidden;
+            /* Border-bottom removed for a seamless melt into the body */
         }
         .hero-banner::after {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.02) 10px, rgba(255,255,255,0.02) 20px);
+            /* This mask smoothly fades the stripes out before they hit the bottom edge */
+            -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
             pointer-events: none;
         }
         .hero-banner h1 { 
@@ -169,7 +178,6 @@
             will-change: transform, box-shadow;
             cursor: zoom-in;
             z-index: 1;
-            /* Default non-hover state: No base color glow, just a standard dark shadow */
             box-shadow: 0 10px 20px rgba(0,0,0,0.6);
             transition: box-shadow 0.3s ease; 
         }
@@ -313,6 +321,9 @@
 </head>
 <body>
 
+    <!-- Dedicated Ambient Background Div for Mobile Perfection -->
+    <div class="ambient-bg"></div>
+
     <header class="hero-banner">
         <h1>⚽ My DLS Card Collection</h1>
         <div class="subtitle">Ultimate Team Roster</div>
@@ -410,18 +421,14 @@
                     tagsHTML += `<span class="tag tag-${tagClass}">${tag}</span>`;
                 });
 
-                // Helper to check if a card has a specific tag (handles variations like "Toty 2025")
                 const hasTag = (tagStr) => card.tags.some(t => t.toLowerCase().includes(tagStr.toLowerCase()));
 
-                // --- DETERMINE HOVER GLOW COLORS ---
-                // Regular/Legendary cards get a standard subtle light glow
                 let hoverGlow = "rgba(255, 255, 255, 0.25)"; 
-                
-                if (hasTag('Classic')) hoverGlow = "rgba(255, 215, 0, 0.6)"; // Gold
-                else if (hasTag('Champion')) hoverGlow = "rgba(13, 58, 153, 0.7)"; // Blue
-                else if (hasTag('Dream Star')) hoverGlow = "rgba(147, 34, 201, 0.7)"; // Purple
-                else if (hasTag('Toty')) hoverGlow = "rgba(0, 255, 120, 0.5)"; // Green
-                else if (hasTag('Kick-Off')) hoverGlow = "rgba(255, 117, 164, 0.6)"; // Pink
+                if (hasTag('Classic')) hoverGlow = "rgba(255, 215, 0, 0.6)"; 
+                else if (hasTag('Champion')) hoverGlow = "rgba(13, 58, 153, 0.7)"; 
+                else if (hasTag('Dream Star')) hoverGlow = "rgba(147, 34, 201, 0.7)"; 
+                else if (hasTag('Toty')) hoverGlow = "rgba(0, 255, 120, 0.5)"; 
+                else if (hasTag('Kick-Off')) hoverGlow = "rgba(255, 117, 164, 0.6)"; 
 
                 const cardElement = document.createElement('div');
                 cardElement.className = 'card-container'; 
@@ -443,14 +450,12 @@
                 const imageWrapper = cardElement.querySelector('.card-image-wrapper');
                 const holoGlare = imageWrapper.querySelector('.holo-glare');
 
-                // CLICK TO ZOOM
                 imageWrapper.addEventListener('click', () => {
                     modalImage.src = `images/${card.image}.webp`;
                     modalCaption.innerHTML = `${card.name} <span style="color:#ffd700; margin-left:8px;">★ ${card.rating}</span>`;
                     cardModal.classList.add('active');
                 });
 
-                // 🪄 DESKTOP ONLY: Dynamic Pop-Out 3D Tilt 🪄
                 if (isDesktop) {
                     imageWrapper.addEventListener('mouseenter', () => {
                         imageWrapper.style.transition = 'transform 0.08s ease-out';
@@ -466,7 +471,6 @@
                         const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -16;
                         const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 16;
                         
-                        // Apply intense hover glow
                         imageWrapper.style.transform = `perspective(800px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(1.08) translateY(-4px)`;
                         imageWrapper.style.boxShadow = `0 25px 50px ${hoverGlow}`;
 
@@ -481,7 +485,6 @@
                         imageWrapper.style.transition = 'all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1)';
                         imageWrapper.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) scale(1) translateY(0px)';
                         
-                        // Revert to default dark drop shadow
                         imageWrapper.style.boxShadow = `0 10px 20px rgba(0,0,0,0.6)`;
                         imageWrapper.style.zIndex = '1';
                         if (holoGlare) holoGlare.style.opacity = '0';
@@ -518,7 +521,6 @@
                 filteredCards = filteredCards.filter(card => card.name.toLowerCase().includes(searchQuery));
             }
 
-            // Using .some() and .includes() to catch tags like "Toty 2025" and "Dream Star"
             if (currentFilter !== "All") {
                 filteredCards = filteredCards.filter(card => 
                     card.tags.some(tag => tag.toLowerCase().includes(currentFilter.toLowerCase()))
