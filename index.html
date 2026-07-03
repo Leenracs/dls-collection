@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My DLS Card Collection</title>
     
-    <!-- Premium Esports & UI Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
@@ -24,7 +23,7 @@
             overscroll-behavior-y: none;
         }
 
-        /* === BULLETPROOF AMBIENT GLOW === */
+        /* === AMBIENT GLOW === */
         .ambient-bg {
             position: fixed;
             top: -25vh; left: -25vw; right: -25vw; bottom: -25vh;
@@ -78,21 +77,25 @@
             margin-top: 10px;
         }
 
-        /* === MAIN CONTENT WRAPPER === */
+        /* === MAIN CONTENT === */
         .content-wrapper {
             padding: 30px 20px;
             max-width: 1200px;
             margin: 0 auto;
         }
         
-        /* === FROSTED GLASS CONTROLS (SEARCH & SORT) === */
+        /* === 3-PART CONTROL BAR === */
         .controls { 
             display: flex; 
             gap: 12px; 
             justify-content: center; 
-            margin-bottom: 25px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
         }
         select, input[type="text"] { 
+            flex: 1;
+            min-width: 200px;
+            max-width: 280px; /* Keeps them from getting absurdly wide on big monitors */
             background: rgba(255, 255, 255, 0.05); 
             color: #fff; 
             border: 1px solid rgba(255, 255, 255, 0.12); 
@@ -104,10 +107,9 @@
             outline: none; 
             transition: all 0.2s;
             backdrop-filter: blur(8px);
-            box-sizing: border-box; /* Ensures padding doesn't break mobile width */
+            box-sizing: border-box;
         }
-        select { cursor: pointer; flex: 1; max-width: 300px; }
-        input[type="text"] { flex: 1; max-width: 300px; }
+        select { cursor: pointer; }
         input[type="text"]::placeholder { color: #888; }
         select:hover, input[type="text"]:focus {
             border-color: rgba(255, 215, 0, 0.5);
@@ -116,46 +118,44 @@
         }
         select option { background: #18181d; color: #fff; }
 
-        /* === APP-LIKE HORIZONTAL PILL FILTERS === */
+        /* === PILL FILTERS === */
         .filter-section {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             max-width: 100%;
+            text-align: center; /* Center everything on PC */
         }
         .filter-label {
             font-family: 'Rajdhani', sans-serif;
             color: #888;
             font-size: 14px;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            padding-left: 4px;
         }
         .filter-group {
             display: flex;
-            gap: 10px;
+            gap: 12px;
+            justify-content: center; /* Centered on desktop */
             overflow-x: auto;
-            padding-bottom: 8px; /* Room for scrollbar if forced */
-            /* Hide scrollbar for a clean native app feel */
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE/Edge */
+            padding-bottom: 8px;
+            scrollbar-width: none; 
+            -ms-overflow-style: none; 
         }
-        .filter-group::-webkit-scrollbar {
-            display: none; /* Chrome/Safari/Opera */
-        }
+        .filter-group::-webkit-scrollbar { display: none; }
         .filter-pill {
-            flex-shrink: 0; /* Prevents pills from squishing on mobile */
+            flex-shrink: 0; 
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: #a0a5ab;
-            padding: 8px 18px;
+            padding: 8px 24px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
         }
         .filter-pill:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
         .filter-pill.active {
@@ -165,27 +165,25 @@
             box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
         }
 
-        /* === LIVE STATS COUNTER === */
+        /* === STATS COUNTER === */
         .stats-counter {
             text-align: center;
             font-size: 16px;
             font-family: 'Rajdhani', sans-serif;
             color: #a0a5ab;
-            margin: 10px 0 30px;
+            margin: 10px 0 35px;
             font-weight: 600;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
         .stats-counter span { color: #ffd700; font-weight: 800; font-size: 18px; }
 
-        /* === RESPONSIVE GRID === */
+        /* === GALLERY & CARDS === */
         .gallery { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
             gap: 35px 25px; 
         }
-
-        /* === FRAMELESS CARD SHOWCASE === */
         .card-container { position: relative; display: flex; flex-direction: column; }
         .card-image-wrapper {
             position: relative;
@@ -200,14 +198,9 @@
             transition: box-shadow 0.3s ease; 
         }
         .holo-glare {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            border-radius: 12px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s ease;
-            z-index: 5;
-            mix-blend-mode: color-dodge; 
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 12px; opacity: 0; pointer-events: none;
+            transition: opacity 0.25s ease; z-index: 5; mix-blend-mode: color-dodge; 
         }
         .card-image { width: 100%; border-radius: 12px; display: block; pointer-events: none; position: relative; z-index: 1; }
         
@@ -248,12 +241,19 @@
         .modal-close { position: absolute; top: -50px; right: 0; color: #ffffff; font-size: 36px; font-weight: 300; cursor: pointer; transition: color 0.2s, transform 0.2s; }
         .modal-close:hover { color: #ffd700; transform: scale(1.1); }
 
-        /* === MOBILE FIXES === */
-        @media (max-width: 650px) {
+        /* === MOBILE RESPONSIVENESS === */
+        @media (max-width: 768px) {
             .hero-banner { padding: 50px 15px 30px; }
-            .hero-banner h1 { font-size: 2.2rem; } /* Shrink giant title on phones */
+            .hero-banner h1 { font-size: 2.2rem; } 
+            
+            /* Stack the 3 controls on mobile */
             .controls { flex-direction: column; align-items: stretch; }
-            select, input[type="text"] { max-width: 100%; } /* Stretches search/sort to edges */
+            select, input[type="text"] { max-width: 100%; }
+            
+            /* Align filters to start so they scroll naturally on small screens */
+            .filter-section { text-align: left; }
+            .filter-group { justify-content: flex-start; padding-left: 5px; }
+            .filter-label { padding-left: 10px; }
         }
     </style>
 </head>
@@ -268,9 +268,21 @@
     
     <div class="content-wrapper">
         
-        <!-- Controls: Search & Sort -->
+        <!-- === TOP CONTROLS === -->
         <div class="controls">
             <input type="text" id="searchInput" placeholder="🔍 Search player...">
+            
+            <!-- THE NEW FUTURE-PROOF PROMO DROPDOWN -->
+            <select id="promoSelect">
+                <option value="All">🏆 All Promos</option>
+                <option value="Classic">Classic</option>
+                <option value="Champion">Champion</option>
+                <option value="Dream Star">Dream Star</option>
+                <option value="Toty">TOTY</option>
+                <option value="Kick-Off">Kick-Off</option>
+                <!-- To add a new promo next year, just paste a new <option> line right here! -->
+            </select>
+
             <select id="sortSelect">
                 <option value="ratingDesc">Sort: Rating (High to Low)</option>
                 <option value="ratingAsc">Sort: Rating (Low to High)</option>
@@ -278,30 +290,25 @@
             </select>
         </div>
 
-        <!-- Filter Row 1: Promo / Type -->
+        <!-- === ROW 1: CARD TYPE === -->
         <div class="filter-section">
             <div class="filter-label">Card Type</div>
             <div class="filter-group" id="typeFilters">
-                <div class="filter-pill active" data-filter="All">All Types</div>
-                <div class="filter-pill" data-filter="Legendary">Regular (Legendary)</div>
-                <div class="filter-pill" data-filter="Special">All Specials</div>
-                <div class="filter-pill" data-filter="Classic">Classic</div>
-                <div class="filter-pill" data-filter="Champion">Champion</div>
-                <div class="filter-pill" data-filter="Dream Star">Dream Star</div>
-                <div class="filter-pill" data-filter="Toty">TOTY</div>
-                <div class="filter-pill" data-filter="Kick-Off">Kick-Off</div>
+                <div class="filter-pill active" data-filter="All">ALL</div>
+                <div class="filter-pill" data-filter="Legendary">STANDARD</div>
+                <div class="filter-pill" data-filter="Special">SPECIAL</div>
             </div>
         </div>
 
-        <!-- Filter Row 2: Position -->
+        <!-- === ROW 2: POSITION === -->
         <div class="filter-section">
             <div class="filter-label">Position</div>
             <div class="filter-group" id="positionFilters">
-                <div class="filter-pill active" data-filter="All">All Positions</div>
-                <div class="filter-pill" data-filter="FW">Attackers (FW)</div>
-                <div class="filter-pill" data-filter="MF">Midfielders (MF)</div>
-                <div class="filter-pill" data-filter="DF">Defenders (DF)</div>
-                <div class="filter-pill" data-filter="GK">Goalkeepers (GK)</div>
+                <div class="filter-pill active" data-filter="All">ALL</div>
+                <div class="filter-pill" data-filter="FW">FW</div>
+                <div class="filter-pill" data-filter="MF">MF</div>
+                <div class="filter-pill" data-filter="DF">DF</div>
+                <div class="filter-pill" data-filter="GK">GK</div>
             </div>
         </div>
 
@@ -309,6 +316,7 @@
         <div class="gallery" id="gallery"></div>
     </div>
 
+    <!-- MODAL -->
     <div class="modal-overlay" id="cardModal">
         <div class="modal-content">
             <span class="modal-close">&times;</span>
@@ -326,12 +334,15 @@
 
         const gallery = document.getElementById('gallery');
         const searchInput = document.getElementById('searchInput');
+        const promoSelect = document.getElementById('promoSelect');
         const sortSelect = document.getElementById('sortSelect');
         const statsCounter = document.getElementById('statsCounter');
 
         const cardModal = document.getElementById('cardModal');
         const modalImage = document.getElementById('modalImage');
         const modalCaption = document.getElementById('modalCaption');
+        const typePills = document.querySelectorAll('#typeFilters .filter-pill');
+        const posPills = document.querySelectorAll('#positionFilters .filter-pill');
 
         const isDesktop = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
@@ -446,28 +457,33 @@
             });
         }
 
-        cardModal.addEventListener('click', (e) => {
-            if (e.target === cardModal || e.target.classList.contains('modal-close')) {
-                cardModal.classList.remove('active');
+        // UX: When Promo dropdown is used
+        promoSelect.addEventListener('change', () => {
+            // Auto-switch Card Type to "SPECIAL" if they pick a specific promo
+            if (promoSelect.value !== "All") {
+                typePills.forEach(p => p.classList.remove('active'));
+                document.querySelector('#typeFilters .filter-pill[data-filter="Special"]').classList.add('active');
+                currentTypeFilter = "Special";
             }
-        });
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') cardModal.classList.remove('active');
+            updateGallery();
         });
 
         // Setup Type Filter Clicks
-        const typePills = document.querySelectorAll('#typeFilters .filter-pill');
         typePills.forEach(pill => {
             pill.addEventListener('click', () => {
                 typePills.forEach(p => p.classList.remove('active'));
                 pill.classList.add('active');
                 currentTypeFilter = pill.getAttribute('data-filter');
+
+                // UX: Reset Promo Dropdown if they click "STANDARD" or "ALL"
+                if (currentTypeFilter === "Legendary" || currentTypeFilter === "All") {
+                    promoSelect.value = "All";
+                }
                 updateGallery();
             });
         });
 
         // Setup Position Filter Clicks
-        const posPills = document.querySelectorAll('#positionFilters .filter-pill');
         posPills.forEach(pill => {
             pill.addEventListener('click', () => {
                 posPills.forEach(p => p.classList.remove('active'));
@@ -486,21 +502,29 @@
                 filteredCards = filteredCards.filter(card => card.name.toLowerCase().includes(searchQuery));
             }
 
-            // 2. Filter by Type
+            // 2. Promo Dropdown Logic
+            const currentPromoFilter = promoSelect.value;
+            if (currentPromoFilter !== "All") {
+                filteredCards = filteredCards.filter(card => 
+                    card.tags.some(tag => tag.toLowerCase().includes(currentPromoFilter.toLowerCase()))
+                );
+            }
+
+            // 3. Card Type Logic
             if (currentTypeFilter !== "All") {
                 filteredCards = filteredCards.filter(card => 
                     card.tags.some(tag => tag.toLowerCase().includes(currentTypeFilter.toLowerCase()))
                 );
             }
 
-            // 3. Filter by Position (STACKED logic)
+            // 4. Position Logic
             if (currentPosFilter !== "All") {
                 filteredCards = filteredCards.filter(card => 
                     card.tags.some(tag => tag.toLowerCase() === currentPosFilter.toLowerCase())
                 );
             }
             
-            // 4. Sort
+            // 5. Sort Logic
             const sortValue = sortSelect.value;
             if (sortValue === "ratingDesc") {
                 filteredCards.sort((a, b) => b.rating - a.rating);
@@ -524,6 +548,16 @@
 
         searchInput.addEventListener('input', updateGallery);
         sortSelect.addEventListener('change', updateGallery);
+
+        // Close Modal
+        cardModal.addEventListener('click', (e) => {
+            if (e.target === cardModal || e.target.classList.contains('modal-close')) {
+                cardModal.classList.remove('active');
+            }
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') cardModal.classList.remove('active');
+        });
 
         loadData();
     </script>
