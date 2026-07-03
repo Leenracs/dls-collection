@@ -206,17 +206,34 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.6);
             transition: box-shadow 0.3s ease; 
         }
+
+        /* ✨ NEW DYNAMIC FOIL SHEEN CSS ✨ */
         .holo-glare {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             border-radius: 12px; opacity: 0; pointer-events: none;
-            transition: opacity 0.25s ease; z-index: 5; mix-blend-mode: color-dodge; 
+            transition: opacity 0.3s ease; z-index: 5; 
+            mix-blend-mode: color-dodge; 
+            
+            /* A massive gradient that gets slid around by the Javascript */
+            background: linear-gradient(
+                115deg,
+                transparent 15%,
+                rgba(255, 255, 255, 0.15) 25%,
+                rgba(255, 215, 0, 0.35) 35%,
+                rgba(255, 255, 255, 0.5) 45%, /* Core bright white sheen */
+                rgba(0, 212, 255, 0.3) 55%,
+                rgba(255, 105, 180, 0.2) 65%,
+                rgba(255, 255, 255, 0.1) 70%,
+                transparent 85%
+            );
+            background-size: 250% 250%; /* Large enough to pan smoothly */
+            background-position: 50% 50%;
         }
         
-        /* THE MAGIC FUTURE-PROOF IMAGE CSS */
         .card-image { 
             width: 100%; 
-            aspect-ratio: 695 / 425; /* Locks the box to your current exact proportions */
-            object-fit: contain; /* Forces future mismatched images to fit without stretching */
+            aspect-ratio: 695 / 425; 
+            object-fit: contain; 
             border-radius: 12px; 
             display: block; 
             pointer-events: none; 
@@ -456,10 +473,13 @@
                         imageWrapper.style.transform = `perspective(800px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(1.08) translateY(-4px)`;
                         imageWrapper.style.boxShadow = `0 25px 50px ${hoverGlow}`;
 
+                        /* ✨ THE NEW LINEAR FOIL JS LOGIC ✨ */
                         if (holoGlare) {
                             const percentX = (x / rect.width) * 100;
                             const percentY = (y / rect.height) * 100;
-                            holoGlare.style.background = `radial-gradient(circle at ${percentX}% ${percentY}%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 215, 0, 0.25) 20%, rgba(255, 105, 180, 0.15) 40%, rgba(0, 212, 255, 0.1) 60%, transparent 80%)`;
+                            
+                            // Subtracting from 100 makes the light "slide" naturally in the opposite direction of the tilt
+                            holoGlare.style.backgroundPosition = `${100 - percentX}% ${100 - percentY}%`;
                         }
                     });
 
@@ -469,7 +489,12 @@
                         
                         imageWrapper.style.boxShadow = `0 10px 20px rgba(0,0,0,0.6)`;
                         imageWrapper.style.zIndex = '1';
-                        if (holoGlare) holoGlare.style.opacity = '0';
+                        
+                        if (holoGlare) {
+                            holoGlare.style.opacity = '0';
+                            // Reset the sheen position back to center after it fades out
+                            setTimeout(() => { holoGlare.style.backgroundPosition = '50% 50%'; }, 300);
+                        }
                     });
                 }
 
