@@ -206,6 +206,8 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.6);
             transition: box-shadow 0.3s ease; 
         }
+        
+        /* ✨ THINNER, SHARPER FOIL SHEEN ✨ */
         .holo-glare {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             border-radius: 12px; opacity: 0; pointer-events: none;
@@ -213,18 +215,19 @@
             mix-blend-mode: color-dodge; 
             
             --angle: 115deg; 
+            /* Notice how much closer the percentages are (40% to 60%) to create a thin, sharp beam */
             background: linear-gradient(
                 var(--angle),
-                transparent 15%,
-                rgba(255, 255, 255, 0.15) 25%,
-                rgba(255, 215, 0, 0.35) 35%,
-                rgba(255, 255, 255, 0.5) 45%, /* Core bright white sheen */
-                rgba(0, 212, 255, 0.3) 55%,
-                rgba(255, 105, 180, 0.2) 65%,
-                rgba(255, 255, 255, 0.1) 70%,
-                transparent 85%
+                transparent 40%,
+                rgba(255, 255, 255, 0.15) 45%,
+                rgba(255, 215, 0, 0.35) 48%,
+                rgba(255, 255, 255, 0.6) 50%, /* Core bright white sheen */
+                rgba(0, 212, 255, 0.3) 52%,
+                rgba(255, 105, 180, 0.2) 55%,
+                rgba(255, 255, 255, 0.1) 58%,
+                transparent 60%
             );
-            background-size: 300% 300%;
+            background-size: 200% 200%;
             background-position: 50% 50%;
         }
         
@@ -270,7 +273,7 @@
         }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-content { position: relative; max-width: 420px; width: 100%; display: flex; flex-direction: column; align-items: center; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .modal-overlay.active .modal-content { transform: scale(1); }
+        .modal-overlay.active .modal-content { transform: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) scale(1); }
         .modal-image { width: 100%; border-radius: 16px; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 215, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.1); }
         .modal-caption { margin-top: 20px; font-size: 28px; font-family: 'Rajdhani', sans-serif; font-weight: 800; color: #ffffff; text-align: center; letter-spacing: 1px; }
         .modal-close { position: absolute; top: -50px; right: 0; color: #ffffff; font-size: 36px; font-weight: 300; cursor: pointer; transition: color 0.2s, transform 0.2s; }
@@ -472,19 +475,15 @@
                         imageWrapper.style.boxShadow = `0 25px 50px ${hoverGlow}`;
 
                         if (holoGlare) {
-                            // ✨ FIXED: Smooth Linear Math (No more 180-degree snapping!) ✨
-                            
-                            // 1. Calculate how far the mouse is across the card (-1 to 1)
                             const normalizedX = (x / rect.width) * 2 - 1; 
                             const normalizedY = (y / rect.height) * 2 - 1; 
                             
-                            // 2. Base angle is 115deg. Gently sway it up to 25 degrees based on mouse tilt.
-                            const angle = 115 + (normalizedX * 25) + (normalizedY * 25);
+                            const angle = 115 + (normalizedX * 20) + (normalizedY * 20);
                             holoGlare.style.setProperty('--angle', `${angle}deg`);
                             
-                            // 3. Glide the sheen across the card opposite to the mouse direction
-                            const bgX = 50 - (normalizedX * 25);
-                            const bgY = 50 - (normalizedY * 25);
+                            // ✨ FIXED: Multiplier set to 50 so it slides completely off the edges ✨
+                            const bgX = 50 - (normalizedX * 50);
+                            const bgY = 50 - (normalizedY * 50);
                             holoGlare.style.backgroundPosition = `${bgX}% ${bgY}%`;
                         }
                     });
