@@ -9,10 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* === ATMOSPHERIC BASE STYLING (NOW MUCH BRIGHTER) === */
+        /* === ATMOSPHERIC BASE STYLING === */
         body { 
             background-color: #07070a;
-            /* Cranked up the opacity so you can actually see the ambient glow */
             background-image: 
                 radial-gradient(circle at 0% 0%, rgba(30, 70, 150, 0.35) 0%, transparent 40%),
                 radial-gradient(circle at 100% 100%, rgba(150, 30, 90, 0.35) 0%, transparent 40%);
@@ -24,16 +23,21 @@
             padding: 0; 
         }
 
-        /* === HERO BANNER (PURE CSS - NO BROKEN IMAGES) === */
+        /* === HERO BANNER === */
         .hero-banner {
             position: relative;
-            background: linear-gradient(135deg, #111116 0%, #0a0a0c 100%);
-            padding: 60px 20px 40px;
+            /* 
+               If the stadium image fails to load again, it's being blocked by your browser. 
+               Simply download a stadium image, put it in your images folder, and change the url below to:
+               url('images/stadium.jpg')
+            */
+            background: linear-gradient(to bottom, rgba(10, 10, 12, 0.5), #07070a), 
+                        url('https://images.pexels.com/photos/1884574/pexels-photo-1884574.jpeg?auto=compress&cs=tinysrgb&w=2000') center/cover;
+            padding: 70px 20px 40px;
             text-align: center;
             border-bottom: 1px solid rgba(255,255,255,0.08);
             overflow: hidden;
         }
-        /* CSS Esports Diagonal Stripes */
         .hero-banner::after {
             content: '';
             position: absolute;
@@ -124,10 +128,7 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        .filter-pill:hover {
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff;
-        }
+        .filter-pill:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
         .filter-pill.active {
             background: rgba(255, 215, 0, 0.15);
             border-color: #ffd700;
@@ -146,11 +147,7 @@
             letter-spacing: 1px;
             text-transform: uppercase;
         }
-        .stats-counter span {
-            color: #ffd700;
-            font-weight: 800;
-            font-size: 18px;
-        }
+        .stats-counter span { color: #ffd700; font-weight: 800; font-size: 18px; }
 
         /* === RESPONSIVE GRID === */
         .gallery { 
@@ -160,11 +157,7 @@
         }
 
         /* === FRAMELESS CARD SHOWCASE === */
-        .card-container { 
-            position: relative;
-            display: flex; 
-            flex-direction: column; 
-        }
+        .card-container { position: relative; display: flex; flex-direction: column; }
 
         /* 🪄 WRAPPER FOR POP-OUT 3D CARD 🪄 */
         .card-image-wrapper {
@@ -176,7 +169,8 @@
             will-change: transform, box-shadow;
             cursor: zoom-in;
             z-index: 1;
-            /* Transition for box-shadow added here so glows smoothly fade in/out */
+            /* Default non-hover state: No base color glow, just a standard dark shadow */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.6);
             transition: box-shadow 0.3s ease; 
         }
 
@@ -201,31 +195,30 @@
             z-index: 1;
         }
         
-        /* LAYOUT REVERTED TO IMAGE 1 (CLEANER) */
+        /* CLEAN LEFT-ALIGNED METADATA */
         .card-details {
             width: 100%;
             display: flex;
             flex-direction: column;
-            align-items: flex-start; /* Left align like Image 1 */
+            align-items: flex-start; 
             gap: 8px;
-            padding: 0 4px; /* Slight padding so text doesn't touch the exact edge */
+            padding: 0 4px; 
         }
 
         .card-header { 
             display: flex; 
-            justify-content: space-between; /* Space out Name and Rating like Image 1 */
+            justify-content: space-between; 
             align-items: center; 
             width: 100%;
         }
         .card-title { 
             font-family: 'Rajdhani', sans-serif;
-            font-size: 20px; /* Slightly smaller so it fits nicely */
+            font-size: 20px; 
             font-weight: 700; 
             line-height: 1.1;
             letter-spacing: 0.5px;
             color: #ffffff; 
             margin: 0; 
-            text-align: left;
         }
         .card-rating { 
             font-family: 'Rajdhani', sans-serif;
@@ -240,32 +233,23 @@
         }
         
         /* === TRANSLUCENT ESPORTS BADGES === */
-        .tags { 
-            display: flex; 
-            flex-wrap: wrap; 
-            justify-content: flex-start; /* Left align tags */
-            gap: 6px; 
-        }
+        .tags { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 6px; }
         .tag { 
             padding: 3px 10px; 
             border-radius: 6px; 
             font-size: 11px; 
             font-weight: 600; 
             letter-spacing: 0.5px;
-            /* Removed text-transform: uppercase to fix the cluttered look */
         }
         
-        /* Position Badges */
         .tag-FW { background: rgba(209, 40, 40, 0.2); color: #ff5e5e; border: 1px solid rgba(209, 40, 40, 0.45); }
         .tag-MF { background: rgba(252, 232, 35, 0.18); color: #ffea3b; border: 1px solid rgba(252, 232, 35, 0.45); }
         .tag-DF { background: rgba(45, 219, 75, 0.18); color: #4ee86e; border: 1px solid rgba(45, 219, 75, 0.45); }
         .tag-GK { background: rgba(42, 111, 214, 0.2); color: #619dff; border: 1px solid rgba(42, 111, 214, 0.45); }
         
-        /* Rarity Badges */
         .tag-Legendary { background: rgba(255, 255, 255, 0.06); color: #d1d6dc; border: 1px solid rgba(255, 255, 255, 0.15); }
         .tag-Special { background: rgba(212, 175, 55, 0.15); color: #f0ce54; border: 1px solid rgba(212, 175, 55, 0.4); }
         
-        /* Special Edition Badges */
         [class*="tag-Champion"] { background: rgba(13, 58, 153, 0.25); color: #78a2ff; border: 1px solid rgba(13, 58, 153, 0.5); }
         [class*="tag-Classic"] { background: rgba(255, 255, 255, 0.08); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.25); }
         [class*="tag-Dream-Star"] { background: rgba(147, 34, 201, 0.22); color: #e084ff; border: 1px solid rgba(147, 34, 201, 0.5); }
@@ -324,23 +308,17 @@
             cursor: pointer;
             transition: color 0.2s, transform 0.2s;
         }
-        .modal-close:hover { 
-            color: #ffd700;
-            transform: scale(1.1);
-        }
-
+        .modal-close:hover { color: #ffd700; transform: scale(1.1); }
     </style>
 </head>
 <body>
 
-    <!-- HERO BANNER -->
     <header class="hero-banner">
         <h1>⚽ My DLS Card Collection</h1>
         <div class="subtitle">Ultimate Team Roster</div>
     </header>
     
     <div class="content-wrapper">
-        <!-- Controls & Search -->
         <div class="controls">
             <input type="text" id="searchInput" placeholder="🔍 Search player...">
             <select id="sortSelect">
@@ -350,7 +328,6 @@
             </select>
         </div>
 
-        <!-- Sleek Pill Filters -->
         <div class="filter-pills" id="filterContainer">
             <div class="filter-pill active" data-filter="All">All Cards</div>
             <div class="filter-pill" data-filter="Legendary">Legendary</div>
@@ -363,16 +340,13 @@
             <div class="filter-pill" data-filter="Classic">Classic</div>
             <div class="filter-pill" data-filter="Dream Star">Dream Star</div>
             <div class="filter-pill" data-filter="Toty">TOTY</div>
+            <div class="filter-pill" data-filter="Kick-Off">Kick-Off</div>
         </div>
 
-        <!-- Live Counter -->
         <div class="stats-counter" id="statsCounter">Loading database...</div>
-
-        <!-- Gallery -->
         <div class="gallery" id="gallery"></div>
     </div>
 
-    <!-- Lightbox Zoom Modal -->
     <div class="modal-overlay" id="cardModal">
         <div class="modal-content">
             <span class="modal-close">&times;</span>
@@ -403,21 +377,14 @@
             try {
                 const response = await fetch(sheetURL);
                 const csvText = await response.text();
-                
                 const rows = csvText.split(/\r?\n/).slice(1); 
                 
                 myCards = rows.filter(row => row.trim() !== '').map(row => {
                     const cols = row.split(','); 
-                    
                     const name = cols[0] ? cols[0].trim() : "Unknown";
                     const rating = cols[1] ? parseInt(cols[1].trim()) : 0;
-                    
-                    const tags = [cols[2], cols[3], cols[4]]
-                        .map(tag => tag ? tag.trim() : '')
-                        .filter(tag => tag !== '');
-                        
+                    const tags = [cols[2], cols[3], cols[4]].map(tag => tag ? tag.trim() : '').filter(tag => tag !== '');
                     const image = cols[5] ? cols[5].trim() : '';
-
                     return { name, rating, tags, image };
                 });
                 
@@ -443,33 +410,24 @@
                     tagsHTML += `<span class="tag tag-${tagClass}">${tag}</span>`;
                 });
 
-                // --- DETERMINE GLOW COLORS ---
-                // Base state is faint. Active/Hover state is bright.
-                let baseGlow = "rgba(0, 0, 0, 0.4)"; 
-                let hoverGlow = "rgba(0, 0, 0, 0.85)"; 
+                // Helper to check if a card has a specific tag (handles variations like "Toty 2025")
+                const hasTag = (tagStr) => card.tags.some(t => t.toLowerCase().includes(tagStr.toLowerCase()));
+
+                // --- DETERMINE HOVER GLOW COLORS ---
+                // Regular/Legendary cards get a standard subtle light glow
+                let hoverGlow = "rgba(255, 255, 255, 0.25)"; 
                 
-                if (card.tags.includes('Legendary')) {
-                    baseGlow = "rgba(255, 215, 0, 0.15)"; // Faint Gold
-                    hoverGlow = "rgba(255, 215, 0, 0.5)"; // Bright Gold
-                }
-                if (card.tags.includes('Champion')) {
-                    baseGlow = "rgba(13, 58, 153, 0.2)"; // Faint Blue
-                    hoverGlow = "rgba(13, 58, 153, 0.6)"; // Bright Blue
-                }
-                if (card.tags.includes('Dream Star')) {
-                    baseGlow = "rgba(147, 34, 201, 0.2)"; // Faint Purple
-                    hoverGlow = "rgba(147, 34, 201, 0.6)"; // Bright Purple
-                }
-                if (card.tags.includes('Toty')) {
-                    baseGlow = "rgba(0, 255, 120, 0.15)"; // Faint Green
-                    hoverGlow = "rgba(0, 255, 120, 0.4)"; // Bright Green
-                }
+                if (hasTag('Classic')) hoverGlow = "rgba(255, 215, 0, 0.6)"; // Gold
+                else if (hasTag('Champion')) hoverGlow = "rgba(13, 58, 153, 0.7)"; // Blue
+                else if (hasTag('Dream Star')) hoverGlow = "rgba(147, 34, 201, 0.7)"; // Purple
+                else if (hasTag('Toty')) hoverGlow = "rgba(0, 255, 120, 0.5)"; // Green
+                else if (hasTag('Kick-Off')) hoverGlow = "rgba(255, 117, 164, 0.6)"; // Pink
 
                 const cardElement = document.createElement('div');
                 cardElement.className = 'card-container'; 
                 
                 cardElement.innerHTML = `
-                    <div class="card-image-wrapper" style="box-shadow: 0 10px 20px ${baseGlow};">
+                    <div class="card-image-wrapper">
                         <div class="holo-glare"></div>
                         <img src="images/${card.image}.webp" alt="${card.name}" class="card-image" onerror="this.src='https://via.placeholder.com/300x400/191919/ffffff?text=Image+Missing'">
                     </div>
@@ -523,8 +481,8 @@
                         imageWrapper.style.transition = 'all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1)';
                         imageWrapper.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) scale(1) translateY(0px)';
                         
-                        // Revert to faint base glow
-                        imageWrapper.style.boxShadow = `0 10px 20px ${baseGlow}`;
+                        // Revert to default dark drop shadow
+                        imageWrapper.style.boxShadow = `0 10px 20px rgba(0,0,0,0.6)`;
                         imageWrapper.style.zIndex = '1';
                         if (holoGlare) holoGlare.style.opacity = '0';
                     });
@@ -534,7 +492,6 @@
             });
         }
 
-        // Close Modal Handlers
         cardModal.addEventListener('click', (e) => {
             if (e.target === cardModal || e.target.classList.contains('modal-close')) {
                 cardModal.classList.remove('active');
@@ -544,7 +501,6 @@
             if (e.key === 'Escape') cardModal.classList.remove('active');
         });
 
-        // Setup Pill Click Listeners
         filterPills.forEach(pill => {
             pill.addEventListener('click', () => {
                 filterPills.forEach(p => p.classList.remove('active'));
@@ -557,18 +513,18 @@
         function updateGallery() {
             let filteredCards = [...myCards];
             
-            // Apply Search
             const searchQuery = searchInput.value.toLowerCase().trim();
             if (searchQuery !== "") {
                 filteredCards = filteredCards.filter(card => card.name.toLowerCase().includes(searchQuery));
             }
 
-            // Apply Pill Filter
+            // Using .some() and .includes() to catch tags like "Toty 2025" and "Dream Star"
             if (currentFilter !== "All") {
-                filteredCards = filteredCards.filter(card => card.tags.includes(currentFilter));
+                filteredCards = filteredCards.filter(card => 
+                    card.tags.some(tag => tag.toLowerCase().includes(currentFilter.toLowerCase()))
+                );
             }
             
-            // Apply Sort
             const sortValue = sortSelect.value;
             if (sortValue === "ratingDesc") {
                 filteredCards.sort((a, b) => b.rating - a.rating);
@@ -578,7 +534,6 @@
                 filteredCards.sort((a, b) => a.name.localeCompare(b.name));
             }
             
-            // Update Stats
             const count = filteredCards.length;
             if (count > 0) {
                 const totalRating = filteredCards.reduce((sum, card) => sum + card.rating, 0);
