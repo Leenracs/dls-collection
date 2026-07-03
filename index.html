@@ -206,8 +206,6 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.6);
             transition: box-shadow 0.3s ease; 
         }
-        
-        /* ✨ GOLDILOCKS FOIL SHEEN: Perfect width, smooth faded edges ✨ */
         .holo-glare {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             border-radius: 12px; opacity: 0; pointer-events: none;
@@ -220,7 +218,7 @@
                 transparent 25%,
                 rgba(255, 255, 255, 0.1) 35%,
                 rgba(255, 215, 0, 0.25) 42%,
-                rgba(255, 255, 255, 0.45) 50%, /* Core white sheen, slightly softer */
+                rgba(255, 255, 255, 0.45) 50%, 
                 rgba(0, 212, 255, 0.25) 58%,
                 rgba(255, 105, 180, 0.15) 65%,
                 transparent 75%
@@ -270,9 +268,41 @@
             opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding: 20px;
         }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-content { position: relative; max-width: 420px; width: 100%; display: flex; flex-direction: column; align-items: center; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .modal-content { position: relative; max-width: 480px; width: 100%; display: flex; flex-direction: column; align-items: center; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); perspective: 1000px; }
         .modal-overlay.active .modal-content { transform: scale(1); }
-        .modal-image { width: 100%; border-radius: 16px; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 215, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        /* ✨ THE NEW MODAL 3D SHOW-OFF CSS ✨ */
+        .modal-image-wrapper {
+            position: relative; width: 100%; border-radius: 16px; transform-style: preserve-3d;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 215, 0, 0.1); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .modal-image { width: 100%; border-radius: 16px; display: block; }
+        
+        .modal-holo-glare {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 16px; opacity: 0; pointer-events: none;
+            mix-blend-mode: color-dodge; z-index: 5;
+            background: linear-gradient( 115deg, transparent 25%, rgba(255, 255, 255, 0.1) 35%, rgba(255, 215, 0, 0.25) 42%, rgba(255, 255, 255, 0.45) 50%, rgba(0, 212, 255, 0.25) 58%, rgba(255, 105, 180, 0.15) 65%, transparent 75%);
+            background-size: 250% 250%; background-position: 100% 100%;
+        }
+
+        /* Animation Classes */
+        .showoff-tilt { animation: showoff-tilt-anim 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .showoff-holo { animation: showoff-holo-anim 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+
+        @keyframes showoff-tilt-anim {
+            0% { transform: rotateX(15deg) rotateY(-20deg); }
+            50% { transform: rotateX(-5deg) rotateY(15deg); }
+            100% { transform: rotateX(0deg) rotateY(0deg); }
+        }
+        @keyframes showoff-holo-anim {
+            0% { opacity: 0; background-position: 100% 100%; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { opacity: 0; background-position: 0% 0%; }
+        }
+
         .modal-caption { margin-top: 20px; font-size: 28px; font-family: 'Rajdhani', sans-serif; font-weight: 800; color: #ffffff; text-align: center; letter-spacing: 1px; }
         .modal-close { position: absolute; top: -50px; right: 0; color: #ffffff; font-size: 36px; font-weight: 300; cursor: pointer; transition: color 0.2s, transform 0.2s; }
         .modal-close:hover { color: #ffd700; transform: scale(1.1); }
@@ -285,11 +315,7 @@
             .filter-section { text-align: left; }
             .filter-group { justify-content: flex-start; padding-left: 5px; }
             .filter-label { padding-left: 10px; }
-            
-            .stats-counter {
-                font-size: 13px;
-                letter-spacing: 0.5px;
-            }
+            .stats-counter { font-size: 13px; letter-spacing: 0.5px; }
             .stats-counter span { font-size: 15px; }
         }
     </style>
@@ -356,7 +382,10 @@
     <div class="modal-overlay" id="cardModal">
         <div class="modal-content">
             <span class="modal-close">&times;</span>
-            <img src="" alt="" class="modal-image" id="modalImage">
+            <div class="modal-image-wrapper" id="modalImageWrapper">
+                <div class="modal-holo-glare" id="modalHoloGlare"></div>
+                <img src="" alt="" class="modal-image" id="modalImage">
+            </div>
             <div class="modal-caption" id="modalCaption"></div>
         </div>
     </div>
@@ -377,6 +406,9 @@
         const cardModal = document.getElementById('cardModal');
         const modalImage = document.getElementById('modalImage');
         const modalCaption = document.getElementById('modalCaption');
+        const modalImageWrapper = document.getElementById('modalImageWrapper');
+        const modalHoloGlare = document.getElementById('modalHoloGlare');
+        
         const typePills = document.querySelectorAll('#typeFilters .filter-pill');
         const posPills = document.querySelectorAll('#positionFilters .filter-pill');
 
@@ -452,6 +484,16 @@
                     modalImage.src = `images/${card.image}.webp`;
                     modalCaption.innerHTML = `${card.name} <span style="color:#ffd700; margin-left:8px;">★ ${card.rating}</span>`;
                     cardModal.classList.add('active');
+
+                    // ✨ TRIGGER THE NEW SHOW-OFF ANIMATION ✨
+                    modalImageWrapper.classList.remove('showoff-tilt');
+                    modalHoloGlare.classList.remove('showoff-holo');
+                    
+                    // Force the browser to reset the animation by triggering a reflow
+                    void modalImageWrapper.offsetWidth; 
+                    
+                    modalImageWrapper.classList.add('showoff-tilt');
+                    modalHoloGlare.classList.add('showoff-holo');
                 });
 
                 if (isDesktop) {
