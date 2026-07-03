@@ -12,7 +12,6 @@
         /* === BASE STYLING === */
         html {
             background-color: #07070a; 
-            /* Disables the bouncy "rubber-band" overscroll effect on mobile for an App-like feel */
             overscroll-behavior-y: none; 
         }
         body { 
@@ -28,12 +27,7 @@
         /* === BULLETPROOF AMBIENT GLOW === */
         .ambient-bg {
             position: fixed;
-            /* Bleed the container way off-screen so mobile URL-bar resizes never show a gap */
-            top: -25vh; 
-            left: -25vw; 
-            right: -25vw; 
-            bottom: -25vh;
-            /* Anchor the gradients mathematically to the visible screen, ignoring the oversized container */
+            top: -25vh; left: -25vw; right: -25vw; bottom: -25vh;
             background-image: 
                 radial-gradient(circle at 25vw 25vh, rgba(30, 70, 150, 0.35) 0%, transparent 50vw),
                 radial-gradient(circle at 125vw 125vh, rgba(150, 30, 90, 0.35) 0%, transparent 50vw);
@@ -70,6 +64,7 @@
             letter-spacing: 1px;
             color: #ffffff; 
             text-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+            line-height: 1.1;
         }
         .hero-banner .subtitle {
             position: relative;
@@ -80,7 +75,7 @@
             font-weight: 600;
             font-size: 1.1rem;
             text-transform: uppercase;
-            margin-top: 5px;
+            margin-top: 10px;
         }
 
         /* === MAIN CONTENT WRAPPER === */
@@ -90,13 +85,12 @@
             margin: 0 auto;
         }
         
-        /* === FROSTED GLASS CONTROLS & SEARCH === */
+        /* === FROSTED GLASS CONTROLS (SEARCH & SORT) === */
         .controls { 
             display: flex; 
             gap: 12px; 
             justify-content: center; 
-            flex-wrap: wrap; 
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
         select, input[type="text"] { 
             background: rgba(255, 255, 255, 0.05); 
@@ -104,15 +98,16 @@
             border: 1px solid rgba(255, 255, 255, 0.12); 
             padding: 12px 20px; 
             border-radius: 8px; 
-            font-size: 13px; 
+            font-size: 14px; 
             font-weight: 500;
             font-family: 'Montserrat', sans-serif;
             outline: none; 
             transition: all 0.2s;
             backdrop-filter: blur(8px);
+            box-sizing: border-box; /* Ensures padding doesn't break mobile width */
         }
-        select { cursor: pointer; }
-        input[type="text"] { width: 220px; }
+        select { cursor: pointer; flex: 1; max-width: 300px; }
+        input[type="text"] { flex: 1; max-width: 300px; }
         input[type="text"]::placeholder { color: #888; }
         select:hover, input[type="text"]:focus {
             border-color: rgba(255, 215, 0, 0.5);
@@ -121,15 +116,35 @@
         }
         select option { background: #18181d; color: #fff; }
 
-        /* === PILL FILTERS === */
-        .filter-pills {
+        /* === APP-LIKE HORIZONTAL PILL FILTERS === */
+        .filter-section {
+            margin-bottom: 20px;
+            max-width: 100%;
+        }
+        .filter-label {
+            font-family: 'Rajdhani', sans-serif;
+            color: #888;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding-left: 4px;
+        }
+        .filter-group {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
             gap: 10px;
-            margin-bottom: 30px;
+            overflow-x: auto;
+            padding-bottom: 8px; /* Room for scrollbar if forced */
+            /* Hide scrollbar for a clean native app feel */
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+        }
+        .filter-group::-webkit-scrollbar {
+            display: none; /* Chrome/Safari/Opera */
         }
         .filter-pill {
+            flex-shrink: 0; /* Prevents pills from squishing on mobile */
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: #a0a5ab;
@@ -156,7 +171,7 @@
             font-size: 16px;
             font-family: 'Rajdhani', sans-serif;
             color: #a0a5ab;
-            margin-bottom: 30px;
+            margin: 10px 0 30px;
             font-weight: 600;
             letter-spacing: 1px;
             text-transform: uppercase;
@@ -172,8 +187,6 @@
 
         /* === FRAMELESS CARD SHOWCASE === */
         .card-container { position: relative; display: flex; flex-direction: column; }
-
-        /* 🪄 WRAPPER FOR POP-OUT 3D CARD 🪄 */
         .card-image-wrapper {
             position: relative;
             width: 100%;
@@ -186,8 +199,6 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.6);
             transition: box-shadow 0.3s ease; 
         }
-
-        /* Holographic Light Shine Layer */
         .holo-glare {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -198,62 +209,15 @@
             z-index: 5;
             mix-blend-mode: color-dodge; 
         }
-
-        .card-image { 
-            width: 100%; 
-            border-radius: 12px; 
-            display: block;
-            pointer-events: none;
-            position: relative;
-            z-index: 1;
-        }
+        .card-image { width: 100%; border-radius: 12px; display: block; pointer-events: none; position: relative; z-index: 1; }
         
-        /* CLEAN LEFT-ALIGNED METADATA */
-        .card-details {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start; 
-            gap: 8px;
-            padding: 0 4px; 
-        }
-
-        .card-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            width: 100%;
-        }
-        .card-title { 
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 20px; 
-            font-weight: 700; 
-            line-height: 1.1;
-            letter-spacing: 0.5px;
-            color: #ffffff; 
-            margin: 0; 
-        }
-        .card-rating { 
-            font-family: 'Rajdhani', sans-serif;
-            white-space: nowrap; 
-            background: rgba(255, 215, 0, 0.12); 
-            color: #ffd700; 
-            border: 1px solid rgba(255, 215, 0, 0.35);
-            font-weight: 700; 
-            padding: 3px 8px; 
-            border-radius: 6px; 
-            font-size: 14px; 
-        }
+        .card-details { width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 0 4px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .card-title { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; line-height: 1.1; letter-spacing: 0.5px; color: #ffffff; margin: 0; }
+        .card-rating { font-family: 'Rajdhani', sans-serif; white-space: nowrap; background: rgba(255, 215, 0, 0.12); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.35); font-weight: 700; padding: 3px 8px; border-radius: 6px; font-size: 14px; }
         
-        /* === TRANSLUCENT ESPORTS BADGES === */
         .tags { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 6px; }
-        .tag { 
-            padding: 3px 10px; 
-            border-radius: 6px; 
-            font-size: 11px; 
-            font-weight: 600; 
-            letter-spacing: 0.5px;
-        }
+        .tag { padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; }
         
         .tag-FW { background: rgba(209, 40, 40, 0.2); color: #ff5e5e; border: 1px solid rgba(209, 40, 40, 0.45); }
         .tag-MF { background: rgba(252, 232, 35, 0.18); color: #ffea3b; border: 1px solid rgba(252, 232, 35, 0.45); }
@@ -269,64 +233,32 @@
         [class*="tag-Kick-Off"] { background: rgba(201, 22, 82, 0.22); color: #ff75a4; border: 1px solid rgba(201, 22, 82, 0.5); }
         [class*="tag-Toty"] { background: rgba(0, 143, 68, 0.22); color: #45f09b; border: 1px solid rgba(0, 143, 68, 0.5); }
         
-        /* === FULLSCREEN LIGHTBOX MODAL === */
+        /* === MODAL === */
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(5, 5, 7, 0.9);
-            backdrop-filter: blur(15px);
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            padding: 20px;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(5, 5, 7, 0.9); backdrop-filter: blur(15px);
+            z-index: 1000; display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding: 20px;
         }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-content {
-            position: relative;
-            max-width: 420px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transform: scale(0.9);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        }
+        .modal-content { position: relative; max-width: 420px; width: 100%; display: flex; flex-direction: column; align-items: center; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .modal-overlay.active .modal-content { transform: scale(1); }
-        .modal-image {
-            width: 100%;
-            border-radius: 16px;
-            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 215, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .modal-caption {
-            margin-top: 20px;
-            font-size: 28px;
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: 800;
-            color: #ffffff;
-            text-align: center;
-            letter-spacing: 1px;
-        }
-        .modal-close {
-            position: absolute;
-            top: -50px;
-            right: 0;
-            color: #ffffff;
-            font-size: 36px;
-            font-weight: 300;
-            cursor: pointer;
-            transition: color 0.2s, transform 0.2s;
-        }
+        .modal-image { width: 100%; border-radius: 16px; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 215, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .modal-caption { margin-top: 20px; font-size: 28px; font-family: 'Rajdhani', sans-serif; font-weight: 800; color: #ffffff; text-align: center; letter-spacing: 1px; }
+        .modal-close { position: absolute; top: -50px; right: 0; color: #ffffff; font-size: 36px; font-weight: 300; cursor: pointer; transition: color 0.2s, transform 0.2s; }
         .modal-close:hover { color: #ffd700; transform: scale(1.1); }
+
+        /* === MOBILE FIXES === */
+        @media (max-width: 650px) {
+            .hero-banner { padding: 50px 15px 30px; }
+            .hero-banner h1 { font-size: 2.2rem; } /* Shrink giant title on phones */
+            .controls { flex-direction: column; align-items: stretch; }
+            select, input[type="text"] { max-width: 100%; } /* Stretches search/sort to edges */
+        }
     </style>
 </head>
 <body>
 
-    <!-- Dedicated Ambient Background Div -->
     <div class="ambient-bg"></div>
 
     <header class="hero-banner">
@@ -335,6 +267,8 @@
     </header>
     
     <div class="content-wrapper">
+        
+        <!-- Controls: Search & Sort -->
         <div class="controls">
             <input type="text" id="searchInput" placeholder="🔍 Search player...">
             <select id="sortSelect">
@@ -344,19 +278,31 @@
             </select>
         </div>
 
-        <div class="filter-pills" id="filterContainer">
-            <div class="filter-pill active" data-filter="All">All Cards</div>
-            <div class="filter-pill" data-filter="Legendary">Legendary</div>
-            <div class="filter-pill" data-filter="Special">Special</div>
-            <div class="filter-pill" data-filter="FW">Attackers (FW)</div>
-            <div class="filter-pill" data-filter="MF">Midfielders (MF)</div>
-            <div class="filter-pill" data-filter="DF">Defenders (DF)</div>
-            <div class="filter-pill" data-filter="GK">Goalkeepers (GK)</div>
-            <div class="filter-pill" data-filter="Champion">Champion</div>
-            <div class="filter-pill" data-filter="Classic">Classic</div>
-            <div class="filter-pill" data-filter="Dream Star">Dream Star</div>
-            <div class="filter-pill" data-filter="Toty">TOTY</div>
-            <div class="filter-pill" data-filter="Kick-Off">Kick-Off</div>
+        <!-- Filter Row 1: Promo / Type -->
+        <div class="filter-section">
+            <div class="filter-label">Card Type</div>
+            <div class="filter-group" id="typeFilters">
+                <div class="filter-pill active" data-filter="All">All Types</div>
+                <div class="filter-pill" data-filter="Legendary">Regular (Legendary)</div>
+                <div class="filter-pill" data-filter="Special">All Specials</div>
+                <div class="filter-pill" data-filter="Classic">Classic</div>
+                <div class="filter-pill" data-filter="Champion">Champion</div>
+                <div class="filter-pill" data-filter="Dream Star">Dream Star</div>
+                <div class="filter-pill" data-filter="Toty">TOTY</div>
+                <div class="filter-pill" data-filter="Kick-Off">Kick-Off</div>
+            </div>
+        </div>
+
+        <!-- Filter Row 2: Position -->
+        <div class="filter-section">
+            <div class="filter-label">Position</div>
+            <div class="filter-group" id="positionFilters">
+                <div class="filter-pill active" data-filter="All">All Positions</div>
+                <div class="filter-pill" data-filter="FW">Attackers (FW)</div>
+                <div class="filter-pill" data-filter="MF">Midfielders (MF)</div>
+                <div class="filter-pill" data-filter="DF">Defenders (DF)</div>
+                <div class="filter-pill" data-filter="GK">Goalkeepers (GK)</div>
+            </div>
         </div>
 
         <div class="stats-counter" id="statsCounter">Loading database...</div>
@@ -375,13 +321,13 @@
         const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzy7w0GcQzjNqNFsRennLi5WorAoS6XHZPiRJF4n-3amHhA7A9czTggF9gc7TUGXIsxdPFICRikf7s/pub?gid=266421028&single=true&output=csv"; 
         
         let myCards = []; 
-        let currentFilter = "All"; 
+        let currentTypeFilter = "All"; 
+        let currentPosFilter = "All"; 
 
         const gallery = document.getElementById('gallery');
         const searchInput = document.getElementById('searchInput');
         const sortSelect = document.getElementById('sortSelect');
         const statsCounter = document.getElementById('statsCounter');
-        const filterPills = document.querySelectorAll('.filter-pill');
 
         const cardModal = document.getElementById('cardModal');
         const modalImage = document.getElementById('modalImage');
@@ -509,11 +455,24 @@
             if (e.key === 'Escape') cardModal.classList.remove('active');
         });
 
-        filterPills.forEach(pill => {
+        // Setup Type Filter Clicks
+        const typePills = document.querySelectorAll('#typeFilters .filter-pill');
+        typePills.forEach(pill => {
             pill.addEventListener('click', () => {
-                filterPills.forEach(p => p.classList.remove('active'));
+                typePills.forEach(p => p.classList.remove('active'));
                 pill.classList.add('active');
-                currentFilter = pill.getAttribute('data-filter');
+                currentTypeFilter = pill.getAttribute('data-filter');
+                updateGallery();
+            });
+        });
+
+        // Setup Position Filter Clicks
+        const posPills = document.querySelectorAll('#positionFilters .filter-pill');
+        posPills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                posPills.forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                currentPosFilter = pill.getAttribute('data-filter');
                 updateGallery();
             });
         });
@@ -521,17 +480,27 @@
         function updateGallery() {
             let filteredCards = [...myCards];
             
+            // 1. Search Query
             const searchQuery = searchInput.value.toLowerCase().trim();
             if (searchQuery !== "") {
                 filteredCards = filteredCards.filter(card => card.name.toLowerCase().includes(searchQuery));
             }
 
-            if (currentFilter !== "All") {
+            // 2. Filter by Type
+            if (currentTypeFilter !== "All") {
                 filteredCards = filteredCards.filter(card => 
-                    card.tags.some(tag => tag.toLowerCase().includes(currentFilter.toLowerCase()))
+                    card.tags.some(tag => tag.toLowerCase().includes(currentTypeFilter.toLowerCase()))
+                );
+            }
+
+            // 3. Filter by Position (STACKED logic)
+            if (currentPosFilter !== "All") {
+                filteredCards = filteredCards.filter(card => 
+                    card.tags.some(tag => tag.toLowerCase() === currentPosFilter.toLowerCase())
                 );
             }
             
+            // 4. Sort
             const sortValue = sortSelect.value;
             if (sortValue === "ratingDesc") {
                 filteredCards.sort((a, b) => b.rating - a.rating);
