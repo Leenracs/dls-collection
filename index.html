@@ -206,15 +206,12 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.6);
             transition: box-shadow 0.3s ease; 
         }
-        
-        /* ✨ CSS VARIABLE-POWERED ROTATING FOIL ✨ */
         .holo-glare {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             border-radius: 12px; opacity: 0; pointer-events: none;
             transition: opacity 0.3s ease; z-index: 5; 
             mix-blend-mode: color-dodge; 
             
-            /* We use a CSS Variable (--angle) to spin the gradient dynamically */
             --angle: 115deg; 
             background: linear-gradient(
                 var(--angle),
@@ -227,7 +224,7 @@
                 rgba(255, 255, 255, 0.1) 70%,
                 transparent 85%
             );
-            background-size: 300% 300%; /* Slightly larger so the corners don't clip when spinning */
+            background-size: 300% 300%;
             background-position: 50% 50%;
         }
         
@@ -468,7 +465,6 @@
                         const x = e.clientX - rect.left;
                         const y = e.clientY - rect.top;
                         
-                        // Existing 3D tilt logic
                         const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -16;
                         const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 16;
                         
@@ -476,19 +472,20 @@
                         imageWrapper.style.boxShadow = `0 25px 50px ${hoverGlow}`;
 
                         if (holoGlare) {
-                            // TRIGONOMETRY TIME: Calculate angle from center of card to the mouse
-                            const dx = x - rect.width / 2;
-                            const dy = y - rect.height / 2;
-                            // Math.atan2 gets the angle in radians, convert to degrees, offset by 90 so it flows cleanly
-                            const angle = Math.atan2(dy, dx) * (180 / Math.PI) - 90;
+                            // ✨ FIXED: Smooth Linear Math (No more 180-degree snapping!) ✨
                             
-                            // Inject the dynamic angle directly into our CSS variable
+                            // 1. Calculate how far the mouse is across the card (-1 to 1)
+                            const normalizedX = (x / rect.width) * 2 - 1; 
+                            const normalizedY = (y / rect.height) * 2 - 1; 
+                            
+                            // 2. Base angle is 115deg. Gently sway it up to 25 degrees based on mouse tilt.
+                            const angle = 115 + (normalizedX * 25) + (normalizedY * 25);
                             holoGlare.style.setProperty('--angle', `${angle}deg`);
                             
-                            // Still smoothly sliding the gradient position as we rotate it
-                            const percentX = (x / rect.width) * 100;
-                            const percentY = (y / rect.height) * 100;
-                            holoGlare.style.backgroundPosition = `${100 - percentX}% ${100 - percentY}%`;
+                            // 3. Glide the sheen across the card opposite to the mouse direction
+                            const bgX = 50 - (normalizedX * 25);
+                            const bgY = 50 - (normalizedY * 25);
+                            holoGlare.style.backgroundPosition = `${bgX}% ${bgY}%`;
                         }
                     });
 
@@ -501,7 +498,6 @@
                         
                         if (holoGlare) {
                             holoGlare.style.opacity = '0';
-                            // Reset the sheen position and angle after it fades out invisibly
                             setTimeout(() => { 
                                 holoGlare.style.backgroundPosition = '50% 50%'; 
                                 holoGlare.style.setProperty('--angle', '115deg');
