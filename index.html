@@ -188,7 +188,6 @@
         .stats-counter span { color: #ffd700; font-weight: 800; font-size: 18px; }
 
         /* === GALLERY & CARDS === */
-        /* FIXED: auto-fill prevents single items from expanding */
         .gallery { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
@@ -212,7 +211,18 @@
             border-radius: 12px; opacity: 0; pointer-events: none;
             transition: opacity 0.25s ease; z-index: 5; mix-blend-mode: color-dodge; 
         }
-        .card-image { width: 100%; border-radius: 12px; display: block; pointer-events: none; position: relative; z-index: 1; }
+        
+        /* THE MAGIC FUTURE-PROOF IMAGE CSS */
+        .card-image { 
+            width: 100%; 
+            aspect-ratio: 695 / 425; /* Locks the box to your current exact proportions */
+            object-fit: contain; /* Forces future mismatched images to fit without stretching */
+            border-radius: 12px; 
+            display: block; 
+            pointer-events: none; 
+            position: relative; 
+            z-index: 1; 
+        }
         
         .card-details { width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 0 4px; }
         .card-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
@@ -260,7 +270,6 @@
             .filter-group { justify-content: flex-start; padding-left: 5px; }
             .filter-label { padding-left: 10px; }
             
-            /* FIXED: Smaller stats counter on mobile so it doesn't wrap */
             .stats-counter {
                 font-size: 13px;
                 letter-spacing: 0.5px;
