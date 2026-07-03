@@ -206,17 +206,18 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.6);
             transition: box-shadow 0.3s ease; 
         }
-
-        /* ✨ NEW DYNAMIC FOIL SHEEN CSS ✨ */
+        
+        /* ✨ CSS VARIABLE-POWERED ROTATING FOIL ✨ */
         .holo-glare {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             border-radius: 12px; opacity: 0; pointer-events: none;
             transition: opacity 0.3s ease; z-index: 5; 
             mix-blend-mode: color-dodge; 
             
-            /* A massive gradient that gets slid around by the Javascript */
+            /* We use a CSS Variable (--angle) to spin the gradient dynamically */
+            --angle: 115deg; 
             background: linear-gradient(
-                115deg,
+                var(--angle),
                 transparent 15%,
                 rgba(255, 255, 255, 0.15) 25%,
                 rgba(255, 215, 0, 0.35) 35%,
@@ -226,7 +227,7 @@
                 rgba(255, 255, 255, 0.1) 70%,
                 transparent 85%
             );
-            background-size: 250% 250%; /* Large enough to pan smoothly */
+            background-size: 300% 300%; /* Slightly larger so the corners don't clip when spinning */
             background-position: 50% 50%;
         }
         
@@ -467,18 +468,26 @@
                         const x = e.clientX - rect.left;
                         const y = e.clientY - rect.top;
                         
+                        // Existing 3D tilt logic
                         const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -16;
                         const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 16;
                         
                         imageWrapper.style.transform = `perspective(800px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(1.08) translateY(-4px)`;
                         imageWrapper.style.boxShadow = `0 25px 50px ${hoverGlow}`;
 
-                        /* ✨ THE NEW LINEAR FOIL JS LOGIC ✨ */
                         if (holoGlare) {
+                            // TRIGONOMETRY TIME: Calculate angle from center of card to the mouse
+                            const dx = x - rect.width / 2;
+                            const dy = y - rect.height / 2;
+                            // Math.atan2 gets the angle in radians, convert to degrees, offset by 90 so it flows cleanly
+                            const angle = Math.atan2(dy, dx) * (180 / Math.PI) - 90;
+                            
+                            // Inject the dynamic angle directly into our CSS variable
+                            holoGlare.style.setProperty('--angle', `${angle}deg`);
+                            
+                            // Still smoothly sliding the gradient position as we rotate it
                             const percentX = (x / rect.width) * 100;
                             const percentY = (y / rect.height) * 100;
-                            
-                            // Subtracting from 100 makes the light "slide" naturally in the opposite direction of the tilt
                             holoGlare.style.backgroundPosition = `${100 - percentX}% ${100 - percentY}%`;
                         }
                     });
@@ -492,8 +501,11 @@
                         
                         if (holoGlare) {
                             holoGlare.style.opacity = '0';
-                            // Reset the sheen position back to center after it fades out
-                            setTimeout(() => { holoGlare.style.backgroundPosition = '50% 50%'; }, 300);
+                            // Reset the sheen position and angle after it fades out invisibly
+                            setTimeout(() => { 
+                                holoGlare.style.backgroundPosition = '50% 50%'; 
+                                holoGlare.style.setProperty('--angle', '115deg');
+                            }, 300);
                         }
                     });
                 }
