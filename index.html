@@ -313,7 +313,16 @@
             .controls { flex-direction: column; align-items: stretch; }
             select, input[type="text"] { max-width: 100%; }
             .filter-section { text-align: left; }
-            .filter-group { justify-content: flex-start; padding-left: 5px; }
+            
+            /* ✨ ADDED FADE EFFECT CSS HERE ✨ */
+            .filter-group { 
+                justify-content: flex-start; 
+                padding-left: 5px; 
+                padding-right: 20px; 
+                -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+                mask-image: linear-gradient(to right, black 85%, transparent 100%);
+            }
+            
             .filter-label { padding-left: 10px; }
             .stats-counter { font-size: 13px; letter-spacing: 0.5px; }
             .stats-counter span { font-size: 15px; }
@@ -643,6 +652,34 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') cardModal.classList.remove('active');
         });
+
+        // ✨ ADDED JAVASCRIPT HINT ANIMATION HERE ✨
+        function hintScroll() {
+            // Only run on smaller screens where it usually gets cut off
+            if (window.innerWidth <= 768) {
+                const filterGroups = document.querySelectorAll('.filter-group');
+                
+                filterGroups.forEach((group, index) => {
+                    // Check if the container actually has overflowed content
+                    if (group.scrollWidth > group.clientWidth) {
+                        // Stagger the animation slightly for each row using the index
+                        setTimeout(() => {
+                            // Scroll right slightly
+                            group.scrollBy({ left: 60, behavior: 'smooth' });
+                            
+                            // Wait for the scroll to finish, then scroll back
+                            setTimeout(() => {
+                                group.scrollTo({ left: 0, behavior: 'smooth' });
+                            }, 800); 
+                            
+                        }, 1000 + (index * 200)); // Starts 1 second after load, staggering subsequent rows
+                    }
+                });
+            }
+        }
+
+        // Run the hint scroll after the window fully loads
+        window.addEventListener('load', hintScroll);
 
         loadData();
     </script>
