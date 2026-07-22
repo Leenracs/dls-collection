@@ -314,11 +314,11 @@
             select, input[type="text"] { max-width: 100%; }
             .filter-section { text-align: left; }
             
-            /* ✨ ADDED FADE EFFECT CSS HERE ✨ */
             .filter-group { 
                 justify-content: flex-start; 
                 padding-left: 5px; 
                 padding-right: 20px; 
+                /* Adds a soft fade effect to the right side so it looks like it continues */
                 -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
                 mask-image: linear-gradient(to right, black 85%, transparent 100%);
             }
@@ -653,33 +653,73 @@
             if (e.key === 'Escape') cardModal.classList.remove('active');
         });
 
-        // ✨ ADDED JAVASCRIPT HINT ANIMATION HERE ✨
-        function hintScroll() {
-            // Only run on smaller screens where it usually gets cut off
-            if (window.innerWidth <= 768) {
-                const filterGroups = document.querySelectorAll('.filter-group');
-                
-                filterGroups.forEach((group, index) => {
-                    // Check if the container actually has overflowed content
-                    if (group.scrollWidth > group.clientWidth) {
-                        // Stagger the animation slightly for each row using the index
-                        setTimeout(() => {
-                            // Scroll right slightly
-                            group.scrollBy({ left: 60, behavior: 'smooth' });
-                            
-                            // Wait for the scroll to finish, then scroll back
-                            setTimeout(() => {
-                                group.scrollTo({ left: 0, behavior: 'smooth' });
-                            }, 800); 
-                            
-                        }, 1000 + (index * 200)); // Starts 1 second after load, staggering subsequent rows
+        // ✨ MARQUEE-STYLE SLOW PANNING EFFECT ✨
+        function startSlowPan() {
+            // Only run on smaller screens where buttons get hidden
+            if (window.innerWidth > 768) return;
+
+            const filterGroups = document.querySelectorAll('.filter-group');
+            
+            filterGroups.forEach((group) => {
+                // Check if the container actually has overflowed content
+                if (group.scrollWidth <= group.clientWidth) return; 
+
+                let scrollPos = 0;
+                let direction = 1; // 1 for right, -1 for left
+                let speed = 0.4; // Very slow speed (pixels per frame)
+                let isAnimating = true;
+                let isPaused = false;
+                let animationId;
+
+                function panStep() {
+                    if (!isAnimating) return; // Completely stop if user interacts
+
+                    if (!isPaused) {
+                        scrollPos += speed * direction;
+                        let maxScroll = group.scrollWidth - group.clientWidth;
+
+                        // Reverse direction and pause briefly when hitting edges
+                        if (scrollPos >= maxScroll) {
+                            scrollPos = maxScroll;
+                            direction = -1; // Switch to left
+                            isPaused = true;
+                            setTimeout(() => isPaused = false, 1500); // 1.5s pause at edge
+                        } else if (scrollPos <= 0 && direction === -1) {
+                            scrollPos = 0;
+                            direction = 1; // Switch to right
+                            isPaused = true;
+                            setTimeout(() => isPaused = false, 1500); // 1.5s pause at start
+                        }
+
+                        // Apply the scroll
+                        group.scrollLeft = scrollPos;
                     }
-                });
-            }
+
+                    // Loop to next frame
+                    animationId = requestAnimationFrame(panStep);
+                }
+
+                // Start animation 1 second after load
+                setTimeout(() => {
+                    animationId = requestAnimationFrame(panStep);
+                }, 1000);
+
+                // IMPORTANT: Stop the animation forever if the user touches the buttons
+                // so they can swipe normally without fighting the script!
+                const stopPan = () => {
+                    isAnimating = false;
+                    cancelAnimationFrame(animationId);
+                };
+
+                // Listen for touch or click
+                group.addEventListener('touchstart', stopPan, { passive: true });
+                group.addEventListener('mousedown', stopPan, { passive: true });
+                group.addEventListener('wheel', stopPan, { passive: true });
+            });
         }
 
-        // Run the hint scroll after the window fully loads
-        window.addEventListener('load', hintScroll);
+        // Run the slow pan script after the window fully loads
+        window.addEventListener('load', startSlowPan);
 
         loadData();
     </script>
