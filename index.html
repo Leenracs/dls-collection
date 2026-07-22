@@ -345,7 +345,6 @@
                 justify-content: flex-start; 
                 padding-left: 20px; 
                 padding-right: 20px; 
-                /* Note: Masking is now completely dynamic through Javascript! */
             }
             
             .filter-label { padding-left: 10px; }
@@ -369,16 +368,17 @@
         <div class="controls">
             <input type="text" id="searchInput" placeholder="🔍 Search player or rating...">
             
+            <!-- ✨ SORTED ALPHABETICALLY ✨ -->
             <select id="promoSelect">
                 <option value="All">🏆 All Promos</option>
-                <option value="Classic">Classic</option>
                 <option value="Champion">Champion</option>
+                <option value="Classic">Classic</option>
                 <option value="Dream Star">Dream Star</option>
-                <option value="Toty">TOTY</option>
-                <option value="Kick-Off">Kick-Off</option>
                 <option value="Dynamic Star">Dynamic Star</option>
-                <option value="WC Winner">WC Winner</option>
+                <option value="Kick-Off">Kick-Off</option>
+                <option value="Toty">TOTY</option>
                 <option value="WC Hero">WC Hero</option>
+                <option value="WC Winner">WC Winner</option>
             </select>
 
             <select id="sortSelect">
@@ -451,6 +451,15 @@
 
         const isDesktop = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
+        // ✨ SMART SEARCH HELPER FUNCTION ✨
+        function sanitizeText(str) {
+            return str.normalize("NFD")             // Breaks apart accented letters (é becomes e + accent)
+                      .replace(/[\u0300-\u036f]/g, "") // Deletes the accents completely
+                      .replace(/['’]/g, "")            // Removes apostrophes (N'Golo -> NGolo)
+                      .replace(/[-]/g, " ")            // Turns hyphens into spaces (Alexander-Arnold -> Alexander Arnold)
+                      .toLowerCase();
+        }
+
         async function loadData() {
             try {
                 const response = await fetch(sheetURL);
@@ -496,7 +505,6 @@
                 else if (hasTag('Dream Star')) hoverGlow = "rgba(147, 34, 201, 0.7)"; 
                 else if (hasTag('Toty')) hoverGlow = "rgba(0, 255, 120, 0.5)"; 
                 else if (hasTag('Kick-Off')) hoverGlow = "rgba(255, 117, 164, 0.6)"; 
-                /* NEW PROMO GLOWS */
                 else if (hasTag('Dynamic Star')) hoverGlow = "rgba(220, 20, 60, 0.6)"; 
                 else if (hasTag('WC Winner')) hoverGlow = "rgba(15, 60, 180, 0.7)";   
                 else if (hasTag('WC Hero')) hoverGlow = "rgba(230, 197, 92, 0.5)";    
@@ -526,11 +534,9 @@
                     modalCaption.innerHTML = `${card.name} <span style="color:#ffd700; margin-left:8px;">★ ${card.rating}</span>`;
                     cardModal.classList.add('active');
 
-                    // TRIGGER THE MODAL SHOW-OFF ANIMATION
                     modalImageWrapper.classList.remove('showoff-tilt');
                     modalHoloGlare.classList.remove('showoff-holo');
                     
-                    // Force the browser to reset the animation by triggering a reflow
                     void modalImageWrapper.offsetWidth; 
                     
                     modalImageWrapper.classList.add('showoff-tilt');
@@ -588,7 +594,6 @@
                 gallery.appendChild(cardElement);
             });
             
-            // Re-check scroll masks after loading new cards (in case filters add/remove scrollbar)
             setTimeout(updateDynamicMasks, 50);
         }
 
@@ -626,10 +631,12 @@
         function updateGallery() {
             let filteredCards = [...myCards];
             
-            const searchQuery = searchInput.value.toLowerCase().trim();
+            // ✨ APPLY THE SANITIZER TO THE SEARCH BOX ✨
+            const searchQuery = sanitizeText(searchInput.value).trim();
             if (searchQuery !== "") {
                 filteredCards = filteredCards.filter(card => 
-                    card.name.toLowerCase().includes(searchQuery) || 
+                    // ✨ APPLY THE SANITIZER TO THE PLAYER'S NAME ✨
+                    sanitizeText(card.name).includes(searchQuery) || 
                     card.rating.toString().includes(searchQuery)
                 );
             }
@@ -688,7 +695,6 @@
             if (e.key === 'Escape') cardModal.classList.remove('active');
         });
 
-        // DYNAMIC SMART FADE EFFECT
         function updateDynamicMasks() {
             if (window.innerWidth > 768) {
                 document.querySelectorAll('.filter-group').forEach(group => {
@@ -731,7 +737,6 @@
         });
         window.addEventListener('resize', updateDynamicMasks);
 
-        // MARQUEE-STYLE SLOW PANNING EFFECT
         function startSlowPan() {
             if (window.innerWidth > 768) return;
 
