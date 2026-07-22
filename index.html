@@ -167,7 +167,7 @@
             user-select: none;
         }
         
-        /* ✨ FIX 1: Only apply hover effect on devices with a real mouse pointer ✨ */
+        /* Only apply hover effect on devices with a real mouse pointer */
         @media (hover: hover) {
             .filter-pill:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
         }
@@ -264,6 +264,28 @@
         [class*="tag-Dream-Star"] { background: rgba(147, 34, 201, 0.22); color: #e084ff; border: 1px solid rgba(147, 34, 201, 0.5); }
         [class*="tag-Kick-Off"] { background: rgba(201, 22, 82, 0.22); color: #ff75a4; border: 1px solid rgba(201, 22, 82, 0.5); }
         [class*="tag-Toty"] { background: rgba(0, 143, 68, 0.22); color: #45f09b; border: 1px solid rgba(0, 143, 68, 0.5); }
+
+        /* === NEW PROMO TAGS === */
+        /* Dynamic Star: Vibrant Red */
+        [class*="tag-Dynamic-Star"] { 
+            background: rgba(220, 20, 60, 0.2); 
+            color: #ff5c77; 
+            border: 1px solid rgba(220, 20, 60, 0.5); 
+        }
+
+        /* WC Winner: Royal/Deep Blue */
+        [class*="tag-WC-Winner"] { 
+            background: rgba(15, 60, 180, 0.25); 
+            color: #7aa3ff; 
+            border: 1px solid rgba(15, 60, 180, 0.5); 
+        }
+
+        /* WC Hero: Sleek Black/Charcoal with Gold trim */
+        [class*="tag-WC-Hero"] { 
+            background: rgba(35, 35, 35, 0.6); 
+            color: #e6c55c; 
+            border: 1px solid rgba(230, 197, 92, 0.4); 
+        }
         
         /* === MODAL === */
         .modal-overlay {
@@ -276,7 +298,7 @@
         .modal-content { position: relative; max-width: 480px; width: 100%; display: flex; flex-direction: column; align-items: center; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); perspective: 1000px; }
         .modal-overlay.active .modal-content { transform: scale(1); }
         
-        /* ✨ THE NEW MODAL 3D SHOW-OFF CSS ✨ */
+        /* MODAL 3D SHOW-OFF CSS */
         .modal-image-wrapper {
             position: relative; width: 100%; border-radius: 16px; transform-style: preserve-3d;
             box-shadow: 0 30px 70px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 215, 0, 0.1); 
@@ -354,6 +376,9 @@
                 <option value="Dream Star">Dream Star</option>
                 <option value="Toty">TOTY</option>
                 <option value="Kick-Off">Kick-Off</option>
+                <option value="Dynamic Star">Dynamic Star</option>
+                <option value="WC Winner">WC Winner</option>
+                <option value="WC Hero">WC Hero</option>
             </select>
 
             <select id="sortSelect">
@@ -471,6 +496,10 @@
                 else if (hasTag('Dream Star')) hoverGlow = "rgba(147, 34, 201, 0.7)"; 
                 else if (hasTag('Toty')) hoverGlow = "rgba(0, 255, 120, 0.5)"; 
                 else if (hasTag('Kick-Off')) hoverGlow = "rgba(255, 117, 164, 0.6)"; 
+                /* NEW PROMO GLOWS */
+                else if (hasTag('Dynamic Star')) hoverGlow = "rgba(220, 20, 60, 0.6)"; 
+                else if (hasTag('WC Winner')) hoverGlow = "rgba(15, 60, 180, 0.7)";   
+                else if (hasTag('WC Hero')) hoverGlow = "rgba(230, 197, 92, 0.5)";    
 
                 const cardElement = document.createElement('div');
                 cardElement.className = 'card-container'; 
@@ -497,7 +526,7 @@
                     modalCaption.innerHTML = `${card.name} <span style="color:#ffd700; margin-left:8px;">★ ${card.rating}</span>`;
                     cardModal.classList.add('active');
 
-                    // ✨ TRIGGER THE NEW SHOW-OFF ANIMATION ✨
+                    // TRIGGER THE MODAL SHOW-OFF ANIMATION
                     modalImageWrapper.classList.remove('showoff-tilt');
                     modalHoloGlare.classList.remove('showoff-holo');
                     
@@ -659,9 +688,8 @@
             if (e.key === 'Escape') cardModal.classList.remove('active');
         });
 
-        // ✨ FIX 2: DYNAMIC SMART FADE EFFECT ✨
+        // DYNAMIC SMART FADE EFFECT
         function updateDynamicMasks() {
-            // Only apply on mobile layout
             if (window.innerWidth > 768) {
                 document.querySelectorAll('.filter-group').forEach(group => {
                     group.style.maskImage = 'none';
@@ -674,27 +702,22 @@
                 const scrollLeft = group.scrollLeft;
                 const maxScroll = group.scrollWidth - group.clientWidth;
                 
-                // If there's nothing to scroll, remove all masks
                 if (maxScroll <= 0) {
                     group.style.maskImage = 'none';
                     group.style.webkitMaskImage = 'none';
                     return;
                 }
 
-                // Check position (allowing 2px buffer for rounding decimals on some phones)
                 const isAtStart = scrollLeft <= 2;
                 const isAtEnd = scrollLeft >= maxScroll - 2;
 
                 let gradientMask = 'none';
                 
                 if (isAtStart && !isAtEnd) {
-                    // Only fade the right side
                     gradientMask = 'linear-gradient(to right, black calc(100% - 25px), transparent 100%)';
                 } else if (!isAtStart && isAtEnd) {
-                    // Only fade the left side
                     gradientMask = 'linear-gradient(to right, transparent 0px, black 25px)';
                 } else if (!isAtStart && !isAtEnd) {
-                    // Fade both sides
                     gradientMask = 'linear-gradient(to right, transparent 0px, black 25px, black calc(100% - 25px), transparent 100%)';
                 }
 
@@ -703,13 +726,12 @@
             });
         }
 
-        // Apply masks when the user scrolls the filters manually
         document.querySelectorAll('.filter-group').forEach(group => {
             group.addEventListener('scroll', updateDynamicMasks, { passive: true });
         });
         window.addEventListener('resize', updateDynamicMasks);
 
-        // ✨ MARQUEE-STYLE SLOW PANNING EFFECT ✨
+        // MARQUEE-STYLE SLOW PANNING EFFECT
         function startSlowPan() {
             if (window.innerWidth > 768) return;
 
@@ -745,7 +767,6 @@
                         }
 
                         group.scrollLeft = scrollPos;
-                        // No need to manually call updateDynamicMasks here because setting scrollLeft triggers the 'scroll' event automatically!
                     }
                     animationId = requestAnimationFrame(panStep);
                 }
@@ -764,7 +785,6 @@
                 group.addEventListener('wheel', stopPan, { passive: true });
             });
             
-            // Do one initial check to apply the starting mask
             updateDynamicMasks();
         }
 
